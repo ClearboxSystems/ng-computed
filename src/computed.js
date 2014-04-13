@@ -15,7 +15,7 @@ angular.module('ng-computed')
             extractorProvider = provider;
         };
 
-        this.$get = ['$injector', '$parse', '$batchedWatch', function($injector, $parse, $batchedWatch) {
+        this.$get = ['$injector', '$parse', function($injector, $parse) {
             var extractor = $injector.invoke(extractorProvider);
 
             var readVars = null;
@@ -66,8 +66,7 @@ angular.module('ng-computed')
                     } else {
                         // register the new dependency
                         result[key] = spec;
-                        spec.deregister = $batchedWatch.call(
-                            spec.scope, spec.expr, updateFn, spec.deep);
+                        spec.deregister = spec.scope.$watch(spec.expr, updateFn, spec.deep);
                     }
                 });
                 return result;
