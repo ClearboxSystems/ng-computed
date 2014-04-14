@@ -1,0 +1,49 @@
+<html ng-app="app">
+  <head>
+    <title>$computed example</title>
+  </head>
+  <body>
+    <div ng-controller="ExampleCtrl">
+      <div>
+        <p>
+          This is a basic example of a $computed property. The result
+          here is calculated by the following code:
+          <pre>
+            $scope.$computed('computedValue', function() {
+                if ($scope.$val('useCustom')) {
+                    return $scope.$val('customValue');
+                } else {
+                    return "default value";
+                }
+            });
+          </pre>
+          When the "use custom" checkbox is checked, the result is the
+          value in the custom value input.  When the "use custom"
+          checkbox is left clear, the result is the string "default
+          value".</p>
+        <p>
+          At the bottom of the page is a log of each watch that is
+          registered/deregistered by the $computed function.  As you
+          will be able to see, the watches on "customValue" are
+          registered and deregistered according to the value of the
+          checkbox, while the watches on "useCustom" stay, as the
+          value is always read from the scope.</p>
+      </div>
+      <hr>
+      <div>
+        <label>Use custom value: <input type="checkbox" ng-model="useCustom"></label>
+      </div>
+      <div>
+        <label>Custom value: <input type="text" ng-model="customValue"></label>
+      </div>
+      <div>
+        Result: <span ng-bind="computedValue"></span>
+      </div>
+      <hr>
+      <div ng-repeat="log in logs track by $index" ng-bind="log"></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+    <script src="../../dist/ng-computed.js"></script>
+    <script src="basic-example.js"></script>
+  </body>
+</html>
