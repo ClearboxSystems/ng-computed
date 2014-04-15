@@ -146,3 +146,28 @@ angular.module('app', ['ngComputed', 'ng'])
         }]);
     }]);
 ```
+
+
+## Transformations
+
+Thus far we have seen `$computed` called with a function in the second
+argument, but it is also valid to call it with an array of
+functions. Each of these functions will be called in sequence, with
+each being given the result returned by the previous function
+(post-extraction).
+
+```javascript
+$scope.$computed('transformedValue', [function() {
+    return $scope.$eval('baseValue');
+}, function(previous) {
+    return previous + $scope.$eval('valueA');
+}, function(previous) {
+    return previous + $scope.$eval('valueB');
+}]);
+```
+
+Each of these transformation functions may have a separate set of
+dependencies. If a function's dependencies change then that function
+will be re-evaluated, which may trigger the evaluation of the
+following functions if the return value has changed.
+
