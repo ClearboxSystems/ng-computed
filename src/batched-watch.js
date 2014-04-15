@@ -18,9 +18,11 @@ angular.module('ngComputed')
             if (watchersForExpr) {
                 var lastArgs = watchersForExpr.lastArgs;
                 if (lastArgs && !lastArgs.registering) {
+                    lastArgs.registering = true;
                     try {
                         f.apply(lastArgs.self, lastArgs.args);
                     } catch (e) { throwLater(e); }
+                    delete lastArgs.registering;
                 }
             } else {
                 watchersForExpr = {fns: {}};
