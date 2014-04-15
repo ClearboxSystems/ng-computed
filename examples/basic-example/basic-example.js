@@ -1,9 +1,10 @@
 /*global angular*/
 angular.module('app', ['ng', 'ng-computed'])
-    .controller('ExampleCtrl', ['$scope', '$computed', function($scope, $computed) {
-        $scope.$computed = $computed.$computed;
-        $scope.$val = $computed.$val;
-
+    .run(['$rootScope', '$eval', '$computed', function($rootScope, $eval, $computed) {
+        $rootScope.$eval = $eval;
+        $rootScope.$computed = $computed;
+    }])
+    .controller('ExampleCtrl', ['$scope', function($scope) {
         $scope.$watch = (function($watch) {
             return function(expr, fn, deep) {
                 var scope = this;
@@ -20,8 +21,8 @@ angular.module('app', ['ng', 'ng-computed'])
         })($scope.$watch);
         
         $scope.$computed('computedValue', function() {
-            if ($scope.$val('useCustom')) {
-                return $scope.$val('customValue');
+            if ($scope.$eval('useCustom')) {
+                return $scope.$eval('customValue');
             } else {
                 return "default value";
             }

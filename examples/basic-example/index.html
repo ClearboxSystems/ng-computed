@@ -10,8 +10,8 @@
           here is calculated by the following code:
           <pre>
             $scope.$computed('computedValue', function() {
-                if ($scope.$val('useCustom')) {
-                    return $scope.$val('customValue');
+                if ($scope.$eval('useCustom')) {
+                    return $scope.$eval('customValue');
                 } else {
                     return "default value";
                 }
