@@ -39,6 +39,28 @@ describe('$computed', function() {
                 return null;
             };
 
+            it('should behave like eval', function() {
+                scope.v = 'v';
+                var result = run(function() {
+                    return scope.$eval("v")
+                        + scope.$eval("v", {v: 'al'})
+                        + scope.$eval("w", {w: 'ue'});
+                });
+                expect(result.value).toBe('value');
+                expect(result.thrown).toBeUndefined();
+
+                var dep = findDependency(result.dependencies, 'v');
+                expect(dep).toBeDefined();
+                expect(dep.type).toBe(type);
+                expect(dep.scope).toBe(scope);
+
+                // this dependency on 'w' shouldn't exist, but is hard to detect
+                dep = findDependency(result.dependencies, 'w');
+                expect(dep).toBeDefined();
+                expect(dep.type).toBe(type);
+                expect(dep.scope).toBe(scope);
+            });
+
             it('should report accessed variables directly', function() {
                 scope.dependent = 'value';
                 var result = run(function() {
