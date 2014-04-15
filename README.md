@@ -18,10 +18,10 @@ $scope.$computed('computedValue', function() {
 });
 ```
 
-In this case, `computedValue` will take on the value `"hello world!"`,
-while also reacting to changes to `$scope.string`. While this case is
-almost trivial, the more complex cases are made more complex only by
-the complexity of the computing function.
+In this case, `$scope.computedValue` will take on the value `"hello
+world!"`, while also reacting to changes to `$scope.string`. While
+this case is almost trivial, the more complex cases are made more
+complex only by the complexity of the computing function.
 
 ## Setup
 
@@ -35,38 +35,16 @@ angular.module('app', ['ngComputed', 'ng'])
         $rootScope.$computed = $computed;
     }]);
 ```
-
-or, if we are more conservative, we can choose different names:
-
-```javascript
-angular.module('app', ['ngComputed', 'ng'])
-    .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
-        $rootScope.get = $trackedEval; // so now $scope.get('expression') fetches tracked values
-        $rootScope.computed = $computed;
-    }]);
-```
-
-We can also avoid doing anything at the top level and instead add
-these functions to any scope:
-
-```javascript
-angular.module('app', ['ngComputed', 'ng'])
-    .controller('SomeController', ['$scope', '$trackedEval', '$computed', function($scope, $trackedEval, $computed) {
-        $scope.$eval = $trackedEval;
-        $scope.$computed = $computed;
-    }]);
-```
-
-For the majority of the documentation we will assume that we have not
-been conservative and have bound to `$scope.$eval` and
-`$scope.$computed` on the root scope.
+For the majority of the documentation we will assume this setup,
+although it is also possible to bind to different names on the root
+scope, or to bind these values on any sub-scope.
 
 ## Average use
 
 For an average use case there shouldn't be much need to think
 particularly hard about how you write computed properties. Just write
 a function to calculate the value from other values on the scope,
-using `$eval` to read off the scope, instead of doing so yourself.
+using `$eval` to read from the scope instead of doing so yourself.
 
 As a relatively meaningless example:
 
