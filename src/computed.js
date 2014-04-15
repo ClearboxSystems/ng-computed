@@ -12,7 +12,7 @@ angular.module('ngComputed')
             extractorProvider = provider;
         };
 
-        this.$get = ['$injector', '$parse', '$trackedEval', function($injector, $parse, $trackedEeval) {
+        this.$get = ['$injector', '$parse', '$trackedEval', function($injector, $parse, $trackedEval) {
             var extractor = $injector.invoke(extractorProvider);
 
             var fixWatches = function(lastResult, newDependencies, updateFn) {
@@ -42,16 +42,15 @@ angular.module('ngComputed')
                         default:
                             console.error("Unknown watch type: ", spec.type, " Not tracking dependency on: ", spec.expr);
                         }
-                        
                     }
                 });
                 return result;
             };
 
-            var dependentFn = function(fn, initialArgs, callback) {
+            var dependentFn = function(self, fn, initialArgs, callback) {
                 var args = initialArgs, deps = {};
                 var run = function() {
-                    var result = $trackedEeval.trackDependencies(fn, args);
+                    var result = $trackedEval.trackDependencies.call(self, fn, args);
                     if (result.thrown === undefined)
                         extractor(result.value, callback);
                     deps = fixWatches(deps, result.dependencies, run);
@@ -74,12 +73,12 @@ angular.module('ngComputed')
             var dependentChain = function(self, fns, finish, i, args) {
                 if (fns.length - i == 1) {
                     // base case
-                    return dependentFn(fns[i], args, function(value) {
+                    return dependentFn(self, fns[i], args, function(value) {
                         finish(value);
                     });
                 } else {
                     var subHandle = null;
-                    var thisHandle =  dependentFn(fns[i], args, function(value) {
+                    var thisHandle =  dependentFn(self, fns[i], args, function(value) {
                         if (subHandle === null) {
                             subHandle = dependentChain(self, fns, finish, i+1, [value]);
                         } else {
@@ -102,8 +101,6 @@ angular.module('ngComputed')
                 var fns = (angular.isArray(fn) ? fn : [fn]);
                 return dependentChain(self, fns, function(value) {
                     assign(self, value);
-                    if (!self.$$phase)
-                        self.$digest();
                 }, 0, []);
             };
 

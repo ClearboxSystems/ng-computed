@@ -30,13 +30,17 @@ going so far as to replace the functions there:
 ```javascript
 angular.module('app', ['ngComputed', 'ng'])
     .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
-        $rootScope.$eval = $trackedEval;
-        $rootScope.$computed = $computed;
+        // we have to use the prototype, otherwise isolate scopes miss out
+        angular.element($rootScope.constructor.prototype, {
+            $eval: $trackedEval,
+            $computed: $computed
+        });
     }]);
 ```
+
 For the majority of the documentation we will assume this setup,
-although it is also possible to bind to different names on the root
-scope, or to bind these values on any sub-scope.
+although it is also possible to bind to different names on the scope
+prototype, or to bind these values on any sub-scope.
 
 ## Basic use
 

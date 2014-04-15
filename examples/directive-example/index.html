@@ -1,0 +1,27 @@
+<html ng-app="app">
+  <head>
+    <title>$computed example</title>
+  </head>
+  <body>
+    <div ng-controller="ExampleCtrl">
+      <div>
+        Directive: <computing-directive></computing-directive>
+      </div>
+
+      <div>
+        <label>Use custom value: <input type="checkbox" ng-model="useCustom"></label>
+      </div>
+      <div>
+        <label>Custom value: <input type="text" ng-model="customValue"></label>
+      </div>
+      <div>
+        Result: <span ng-bind="computedValue"></span>
+      </div>
+      <hr>
+      <div ng-repeat="log in logs track by $index" ng-bind="log"></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+    <script src="../../dist/ng-computed.js"></script>
+    <script src="directive-example.js"></script>
+  </body>
+</html>
