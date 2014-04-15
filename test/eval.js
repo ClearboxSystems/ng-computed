@@ -7,9 +7,9 @@ describe('$computed', function() {
     ["equal", "reference", "collection"].forEach(function(type) {
         describe('with ' + type + ' watch', function() {
             var scope, run, rootScope;
-            beforeEach(module('ng-computed'));
+            beforeEach(module('ngComputed'));
             beforeEach(function() {
-                angular.module('ng-computed')
+                angular.module('ngComputed')
                     .config(function($evalProvider) {
                         $evalProvider.setDefaultWatchType(type);
                     });

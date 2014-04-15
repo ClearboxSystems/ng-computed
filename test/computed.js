@@ -5,7 +5,7 @@
 describe('$computed', function() {
 
     var scope, q, timeout;
-    beforeEach(module('ng-computed'));
+    beforeEach(module('ngComputed'));
     /*beforeEach(function() {
         angular.module('ng-computed')
             .config(function($computedProvider) {

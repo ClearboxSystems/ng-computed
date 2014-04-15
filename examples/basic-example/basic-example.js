@@ -1,5 +1,5 @@
 /*global angular*/
-angular.module('app', ['ng', 'ng-computed'])
+angular.module('app', ['ng', 'ngComputed'])
     .run(['$rootScope', '$eval', '$computed', function($rootScope, $eval, $computed) {
         $rootScope.$eval = $eval;
         $rootScope.$computed = $computed;

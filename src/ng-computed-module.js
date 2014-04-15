@@ -2,4 +2,4 @@
 
 'use strict';
 
-angular.module('ng-computed', ['ng']);
+angular.module('ngComputed', ['ng']);

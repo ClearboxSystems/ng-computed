@@ -1,6 +1,6 @@
 /*global angular,setTimeout*/
 
-angular.module('ng-computed')
+angular.module('ngComputed')
     .factory('$batchedWatch', ['$rootScope', function($rootScope) {
         var watch = $rootScope.$watch;
 

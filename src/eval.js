@@ -1,5 +1,5 @@
 /*global angular*/
-angular.module('ng-computed')
+angular.module('ngComputed')
     .provider('$eval', [function() {
         var defaultType = "equal";
         this.setDefaultWatchType = function(type) {

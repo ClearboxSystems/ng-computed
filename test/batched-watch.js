@@ -5,7 +5,7 @@
 describe('$batchedWatch', function() {
 
     var scope;
-    beforeEach(module('ng-computed'));
+    beforeEach(module('ngComputed'));
     beforeEach(inject(function($batchedWatch, $rootScope) {
         $rootScope.$watch = $batchedWatch;
         scope = $rootScope.$new();

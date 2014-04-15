@@ -1,5 +1,5 @@
 /*global angular*/
-angular.module('ng-computed')
+angular.module('ngComputed')
     .provider('$computed', [function() {
         var extractorProvider = ['$q', function($q) {
             return function(value, callback) {
