@@ -38,7 +38,7 @@ For the majority of the documentation we will assume this setup,
 although it is also possible to bind to different names on the root
 scope, or to bind these values on any sub-scope.
 
-## Average use
+## Basic use
 
 For an average use case there shouldn't be much need to think
 particularly hard about how you write computed properties. Just write
@@ -72,7 +72,7 @@ to be watched, and when. So, if `$scope.operation == "division"` and
 two values, but if `scope.div2 != 0` then you'll have three watches:
 `scope.operation`, `scope.div1` and `scope.div2`.
 
-# Watches
+## Watches
 
 By default, `$trackedEval` tracks all dependencies as deep equality
 watches. This can be quite inefficient, especially for dependencies on
@@ -82,13 +82,13 @@ large objects, so `ng-computed` provides two tools to help:
 
     Shipped along with `ng-computed` is a service called
     `$batchedWatch`. It's a drop-in replacement for `Scope.$watch`
-    which can be used as `$watch` on the top level (or on any
+    which can be used as `$watch` on the root scope (or on any
     sub-scope) and will batch together expression watches where
     possible. This can mean that multiple deep watches on the same
     large object will only incur one `angular.copy`/`angular.equals`
     per change.
 
-2. `$eval{Reference,Equal,Collection`
+2. `$eval{Reference,Equal,Collection}`
 
     The `$trackedEval` service is not just a simple function, there
     are in fact three variations of `$trackedEval` which each track
