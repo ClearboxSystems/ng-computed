@@ -66,8 +66,8 @@ describe('$computed', function() {
         });
         expect(scope.value).toBe(13);
         expect(topRuns).toBe(2);
-        expect(aRuns).toBe(3); // not entirely sure why this is three, but it has to do with init
-        expect(bRuns).toBe(4); // not entirely sure why this is four, but it has to do with init
+        expect(aRuns).toBe(2);
+        expect(bRuns).toBe(2);
 
         topRuns = 0, aRuns = 0, bRuns = 0;
         scope.$apply(function() {

@@ -62,7 +62,12 @@ angular.module('ng-computed')
                 var handle = function() {
                     fixWatches(deps, {}, null);
                 };
-                handle.setArgs = function(newArgs) {args = newArgs; run();};
+                handle.setArgs = function(newArgs) {
+                    if (!angular.equals(args, newArgs)) { // same args, don't re-evaluate
+                        args = angular.copy(newArgs);
+                        run();
+                    }
+                };
                 return handle;
             };
 
