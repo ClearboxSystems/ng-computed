@@ -1,15 +1,74 @@
 # ng-computed
 
-Computed properties for [AngularJS][1].
+Computed properties for [AngularJS][1], à la [Knockout JS][2].
 
 [1]: http://angularjs.org/
+[2]: http://knockoutjs.com/
 
 
 ## Summary
 
 `ng-computed` lets you write computed properties without worrying
-about which values to register a `$watch` on and when. You just write
-some code like this:
+about which values to register a `$watch` on and when.
+
+```javascript
+$scope.string = "hello";
+$scope.$computed('computedValue', function() {
+    return $scope.$eval('string') + " world!";
+});
+```
+
+In this case, `computedValue` will take on the value `"hello world!"`,
+while also reacting to changes to `$scope.string`. While this case is
+almost trivial, the more complex cases are made more complex only by
+the complexity of the computing function.
+
+## Setup
+
+At the top level we can add our functions to the root scope, even
+going so far as to replace the functions there:
+
+```javascript
+angular.module('app', ['ngComputed', 'ng'])
+    .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
+        $rootScope.$eval = $trackedEval;
+        $rootScope.$computed = $computed;
+    }]);
+```
+
+or, if we are more conservative, we can choose different names:
+
+```javascript
+angular.module('app', ['ngComputed', 'ng'])
+    .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
+        $rootScope.get = $trackedEval; // so now $scope.get('expression') fetches tracked values
+        $rootScope.computed = $computed;
+    }]);
+```
+
+We can also avoid doing anything at the top level and instead add
+these functions to any scope:
+
+```javascript
+angular.module('app', ['ngComputed', 'ng'])
+    .controller('SomeController', ['$scope', '$trackedEval', '$computed', function($scope, $trackedEval, $computed) {
+        $scope.$eval = $trackedEval;
+        $scope.$computed = $computed;
+    }]);
+```
+
+For the majority of the documentation we will assume that we have not
+been conservative and have bound to `$scope.$eval` and
+`$scope.$computed` on the root scope.
+
+## Average use
+
+For an average use case there shouldn't be much need to think
+particularly hard about how you write computed properties. Just write
+a function to calculate the value from other values on the scope,
+using `$eval` to read off the scope, instead of doing so yourself.
+
+As a relatively meaningless example:
 
 ```javascript
 $scope.$computed('computedValue', function() {
@@ -30,13 +89,8 @@ $scope.$computed('computedValue', function() {
 });
 ```
 
-and `ng-computed` will work out all the details of what needs to be
-watched. So, if `$scope.operation == "division"` and `scope.div2 == 0`
-then you'll only have watches registered on those two values, but if
-`scope.div2 != 0` then you'll have three watches: `scope.operation`,
-`scope.div1` and `scope.div2`.
-
-We achieve this by providing a drop-in replacement for `Scope.$eval`
-in our `$trackedEval` service. It behaves exactly the same as `$eval`
-in most contexts, but also allows us to track which values are
-accessed within a `$computed` block.
+From this, `ng-computed` will work out all the details of what needs
+to be watched, and when. So, if `$scope.operation == "division"` and
+`scope.div2 == 0` then you'll only have watches registered on those
+two values, but if `scope.div2 != 0` then you'll have three watches:
+`scope.operation`, `scope.div1` and `scope.div2`.
