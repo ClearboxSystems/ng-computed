@@ -5,7 +5,6 @@ Computed properties for [AngularJS][1], à la [Knockout JS][2].
 [1]: http://angularjs.org/
 [2]: http://knockoutjs.com/
 
-
 ## Summary
 
 `ng-computed` lets you write computed properties without worrying
@@ -72,3 +71,48 @@ to be watched, and when. So, if `$scope.operation == "division"` and
 `scope.div2 == 0` then you'll only have watches registered on those
 two values, but if `scope.div2 != 0` then you'll have three watches:
 `scope.operation`, `scope.div1` and `scope.div2`.
+
+# Watches
+
+By default, `$trackedEval` tracks all dependencies as deep equality
+watches. This can be quite inefficient, especially for dependencies on
+large objects, so `ng-computed` provides two tools to help:
+
+1. `$watch` batching
+
+    Shipped along with `ng-computed` is a service called
+    `$batchedWatch`. It's a drop-in replacement for `Scope.$watch`
+    which can be used as `$watch` on the top level (or on any
+    sub-scope) and will batch together expression watches where
+    possible. This can mean that multiple deep watches on the same
+    large object will only incur one `angular.copy`/`angular.equals`
+    per change.
+
+2. `$eval{Reference,Equal,Collection`
+
+    The `$trackedEval` service is not just a simple function, there
+    are in fact three variations of `$trackedEval` which each track
+    the dependency as one of the varieties of watch:
+
+    * `$evalReference`, as a reference watch
+    * `$evalEqual`, as a deep equality watch
+    * `$evalCollection`, as a collection watch
+
+    These can be placed on a scope and used as normal:
+
+    ```javascript
+$scope.$evalReference = $trackedEval.$evalReference;
+$scope.$computed('computedValue', function() {
+    return $scope.$evalReference('shallowWatchedValue');
+});
+    ```
+
+    By default `$trackedEval` is the `$evalEquals` function, but it
+    can be configured using angular's configuration mechanism:
+
+    ```javascript
+angular.module('app', ['ngComputed', 'ng'])
+    .config(['$trackedEvalProvider', function($trackedEvalProvider) {
+        $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
+    }]);
+    ```
