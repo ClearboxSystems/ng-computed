@@ -4,15 +4,6 @@ angular.module('ngComputed')
     .factory('$batchedWatch', ['$rootScope', function($rootScope) {
         var watch = $rootScope.$watch;
 
-        var run = function(f) {
-            try {
-                return f();
-            } catch (e) {
-                setTimeout(function(){throw e;}, 0);
-                return null;
-            }
-        };
-
         var nextWatchId = 1;
         var registerWatch = function(watchers, expr, deep, f) {
             var watchersForDepth = watchers[deep];
@@ -22,9 +13,7 @@ angular.module('ngComputed')
                 if (lastArgs)
                     f.apply(lastArgs.self, lastArgs.args);
             } else {
-                watchersForExpr = {
-                    fns: {}
-                };
+                watchersForExpr = {fns: {}};
                 watchersForExpr.deregister = watch.call(this, expr, function() {
                     var self = this;
                     var args = arguments;
