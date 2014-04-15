@@ -2,7 +2,7 @@
 angular.module('ng-computed')
     .provider('$eval', [function() {
         var defaultType = "equal";
-        this.defaultWatchType = function(type) {
+        this.setDefaultWatchType = function(type) {
             if (type == "equal" || type == "reference" || type == "collection") {
                 defaultType = type;
             } else {
@@ -58,6 +58,7 @@ angular.module('ng-computed')
                 obj.$evalReference = $evalReference;
                 obj.$evalCollection = $evalCollection;
                 obj.trackDependencies = trackDependencies;
+                Object.defineProperty(obj, 'trackDependencies', {enumerable: false});
             };
 
             addAllToExportObject($evalEqual);
