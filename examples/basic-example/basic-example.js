@@ -1,7 +1,7 @@
 /*global angular*/
 angular.module('app', ['ng', 'ngComputed'])
-    .run(['$rootScope', '$eval', '$computed', function($rootScope, $eval, $computed) {
-        $rootScope.$eval = $eval;
+    .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
+        $rootScope.$eval = $trackedEval;
         $rootScope.$computed = $computed;
     }])
     .controller('ExampleCtrl', ['$scope', function($scope) {

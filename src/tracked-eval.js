@@ -1,6 +1,6 @@
 /*global angular*/
 angular.module('ngComputed')
-    .provider('$eval', [function() {
+    .provider('$trackedEval', [function() {
         var defaultType = "equal";
         this.setDefaultWatchType = function(type) {
             if (type == "equal" || type == "reference" || type == "collection") {
@@ -33,7 +33,7 @@ angular.module('ngComputed')
             var dependencyTrackingEval = function(expr, type, locals) {
                 if (readVars) {
                     if (angular.isFunction(expr))
-                        throw new Error("Function used in $eval while tracking dependencies. Instead, call the function and use $eval internally.");
+                        throw new Error("Function used in $trackedEval while tracking dependencies. Instead, call the function and use $trackedEval internally.");
                     readVars[this.$id + "|" + expr + "|" + type] = {
                         scope: this,
                         expr: expr,

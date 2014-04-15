@@ -9,10 +9,10 @@ module.exports = function (grunt) {
             },
             library: {
                 src: [
-                    'src/<%= library.name %>.prefix',
-                    'src/<%= library.name %>-module.js',
+                    'src/prefix.js',
+                    'src/module.js',
                     'src/**/*.js',
-                    'src/<%= library.name %>.suffix'
+                    'src/suffix.js'
                 ],
                 dest: 'dist/<%= library.name %>.js'
             }

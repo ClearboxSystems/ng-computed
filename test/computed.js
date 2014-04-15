@@ -16,8 +16,8 @@ describe('$computed', function() {
                 }]);
             });
     });*/
-    beforeEach(inject(function($computed, $eval, $rootScope, $q, $timeout) {
-        $rootScope.$eval = $eval;
+    beforeEach(inject(function($computed, $trackedEval, $rootScope, $q, $timeout) {
+        $rootScope.$eval = $trackedEval;
         $rootScope.$computed = $computed;
         scope = $rootScope.$new();
         q = $q;

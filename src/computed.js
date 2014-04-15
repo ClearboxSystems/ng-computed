@@ -12,7 +12,7 @@ angular.module('ngComputed')
             extractorProvider = provider;
         };
 
-        this.$get = ['$injector', '$parse', '$eval', function($injector, $parse, $eval) {
+        this.$get = ['$injector', '$parse', '$trackedEval', function($injector, $parse, $trackedEeval) {
             var extractor = $injector.invoke(extractorProvider);
 
             var fixWatches = function(lastResult, newDependencies, updateFn) {
@@ -51,7 +51,7 @@ angular.module('ngComputed')
             var dependentFn = function(fn, initialArgs, callback) {
                 var args = initialArgs, deps = {};
                 var run = function() {
-                    var result = $eval.trackDependencies(fn, args);
+                    var result = $trackedEeval.trackDependencies(fn, args);
                     if (result.thrown === undefined)
                         extractor(result.value, callback);
                     deps = fixWatches(deps, result.dependencies, run);

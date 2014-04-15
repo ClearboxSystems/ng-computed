@@ -10,23 +10,22 @@ describe('$computed', function() {
             beforeEach(module('ngComputed'));
             beforeEach(function() {
                 angular.module('ngComputed')
-                    .config(function($evalProvider) {
-                        $evalProvider.setDefaultWatchType(type);
+                    .config(function($trackedEvalProvider) {
+                        $trackedEvalProvider.setDefaultWatchType(type);
                     });
             });
 
-            beforeEach(inject(function($computed, $eval, $rootScope) {
-                $rootScope.$eval = $eval;
-                angular.extend($rootScope, $eval);
+            beforeEach(inject(function($computed, $trackedEval, $rootScope) {
+                $rootScope.$eval = $trackedEval;
+                angular.extend($rootScope, $trackedEval);
                 expect($rootScope.trackDependencies).toBeUndefined(); // should be non-enumerable
                 $rootScope.$computed = $computed;
                 rootScope = $rootScope;
                 scope = $rootScope.$new();
 
                 run = function(args) {
-                    return $eval.trackDependencies.call(this,
-                                                        arguments[0],
-                                                        Array.prototype.slice.call(arguments, 1));
+                    return $trackedEval.trackDependencies
+                        .call(this, arguments[0], Array.prototype.slice.call(arguments, 1));
                 };
             }));
 
