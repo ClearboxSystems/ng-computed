@@ -16,9 +16,9 @@ describe('$computed', function() {
                 }]);
             });
     });*/
-    beforeEach(inject(function($computed, $rootScope) {
-        $rootScope.$val = $computed.$val;
-        $rootScope.$computed = $computed.$computed;
+    beforeEach(inject(function($computed, $eval, $rootScope) {
+        $rootScope.$eval = $eval;
+        $rootScope.$computed = $computed;
         scope = $rootScope.$new();
     }));
 
@@ -27,7 +27,7 @@ describe('$computed', function() {
         scope.$apply(function() {
             scope.val = 10;
             deregister = scope.$computed('value', function() {
-                return scope.$val('val');
+                return scope.$eval('val');
             });
         });
         expect(scope.value).toBe(10);
@@ -62,8 +62,8 @@ describe('$computed', function() {
             scope.cond = true;
             scope.ifTrue = 10;
             deregister = scope.$computed('result', function() {
-                if (scope.$val('cond')) {
-                    return scope.$val('ifTrue');
+                if (scope.$eval('cond')) {
+                    return scope.$eval('ifTrue');
                 } else {
                     return 'ten';
                 }
