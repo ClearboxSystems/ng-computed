@@ -68,9 +68,10 @@ $scope.$computed('computedValue', function() {
 
 From this, `ng-computed` will work out all the details of what needs
 to be watched, and when. So, if `$scope.operation == "division"` and
-`scope.div2 == 0` then you'll only have watches registered on those
-two values, but if `scope.div2 != 0` then you'll have three watches:
-`scope.operation`, `scope.div1` and `scope.div2`.
+`$scope.div2 == 0` then you'll only have watches registered on
+`$scope.operation` and `$scope.div2` values, but if `$scope.div2 != 0`
+then you'll have three watches: `$scope.operation`, `$scope.div1` and
+`$scope.div2`.
 
 ## Watches
 
@@ -114,5 +115,34 @@ $scope.$computed('computedValue', function() {
 angular.module('app', ['ngComputed', 'ng'])
     .config(['$trackedEvalProvider', function($trackedEvalProvider) {
         $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
+    }]);
+    ```
+
+## Extractors
+
+By default, `$computed` will extract a value from a `$q` promise if
+it's returned from the computed function:
+
+    ```javascript
+$scope.$computed('extracted', function() {
+    var deferred = $q.defer();
+    deferred.resolve('a value'); // could happen later
+    return deferred.promise;
+});
+    ```
+
+This behaviour of "extracting" a value from the result of a
+`$computed` function is open for customisation through angular's
+configuration mechanism. This is how the default extractor is
+implemented:
+
+    ```javascript
+angular.module('app', ['ngComputed', 'ng'])
+    .config(['$computedProvider', function($computedProvider) {
+        $computedProvider.provideExtractor(['$q', function($q) {
+            return function(value, callback) {
+                $q.when(value).then(resultCallback, resultCallback);
+            };
+        }]);
     }]);
     ```
