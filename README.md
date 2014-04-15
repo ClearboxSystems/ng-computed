@@ -102,19 +102,19 @@ large objects, so `ng-computed` provides two tools to help:
     These can be placed on a scope and used as normal:
 
     ```javascript
-$scope.$evalReference = $trackedEval.$evalReference;
-$scope.$computed('computedValue', function() {
-    return $scope.$evalReference('shallowWatchedValue');
-});
+    $scope.$evalReference = $trackedEval.$evalReference;
+    $scope.$computed('computedValue', function() {
+        return $scope.$evalReference('shallowWatchedValue');
+    });
     ```
 
     By default `$trackedEval` is the `$evalEquals` function, but it
     can be configured using angular's configuration mechanism:
 
     ```javascript
-angular.module('app', ['ngComputed', 'ng'])
-    .config(['$trackedEvalProvider', function($trackedEvalProvider) {
-        $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
+    angular.module('app', ['ngComputed', 'ng'])
+        .config(['$trackedEvalProvider', function($trackedEvalProvider) {
+            $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
     }]);
     ```
 
