@@ -123,20 +123,20 @@ angular.module('app', ['ngComputed', 'ng'])
 By default, `$computed` will extract a value from a `$q` promise if
 it's returned from the computed function:
 
-    ```javascript
+```javascript
 $scope.$computed('extracted', function() {
     var deferred = $q.defer();
     deferred.resolve('a value'); // could happen later
     return deferred.promise;
 });
-    ```
+```
 
 This behaviour of "extracting" a value from the result of a
 `$computed` function is open for customisation through angular's
 configuration mechanism. This is how the default extractor is
 implemented:
 
-    ```javascript
+```javascript
 angular.module('app', ['ngComputed', 'ng'])
     .config(['$computedProvider', function($computedProvider) {
         $computedProvider.provideExtractor(['$q', function($q) {
@@ -145,4 +145,4 @@ angular.module('app', ['ngComputed', 'ng'])
             };
         }]);
     }]);
-    ```
+```
