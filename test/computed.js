@@ -245,4 +245,17 @@ describe('$computed', function() {
         expect(registered).toBe(false);
     });
 
+    it('should deregister itself when the scope is destroyed', function() {
+        var deregister, destroyed = false;
+        var computeFn = function() {return 10;};
+        computeFn.destroy = function() { destroyed = true; };
+        scope.$apply(function() {
+            deregister = scope.$computed('value', computeFn);
+        });
+
+        expect(destroyed).toBe(false);
+        scope.$destroy();
+        expect(destroyed).toBe(true);
+    });
+
 });

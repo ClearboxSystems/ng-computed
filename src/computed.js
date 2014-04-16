@@ -103,9 +103,16 @@ angular.module('ngComputed')
                 var self = this;
                 var assign = $parse(expr).assign;
                 var fns = (angular.isArray(fn) ? fn : [fn]);
-                return dependentChain(self, fns, function(value) {
+                var deregister = dependentChain(self, fns, function(value) {
                     assign(self, value);
                 }, 0, []);
+                var deregisterOn = this.$on('$destroy', function() {
+                    deregister();
+                });
+                return function() {
+                    deregisterOn();
+                    deregister();
+                };
             };
 
             return $computed;
