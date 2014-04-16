@@ -75,7 +75,7 @@ angular.module("example", ["ng"])
 ```
 
 [3]: http://knockoutjs.com/documentation/computedObservables.html
-[4]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8
+[4]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8?p=preview
 
 
 ## Setup
