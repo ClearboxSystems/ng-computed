@@ -145,12 +145,15 @@ angular.module('app', ['ngComputed', 'ng'])
     .config(['$computedProvider', function($computedProvider) {
         $computedProvider.provideExtractor(['$q', function($q) {
             return function(value, callback) {
-                $q.when(value).then(resultCallback, resultCallback);
+                $q.when(value).then(callback, callback);
             };
         }]);
     }]);
 ```
 
+It's the extractor's responsibility to ensure that any changes are
+`$digest`ed after extraction. This can usually be achieved by calling
+`$rootScope.$apply()` after invoking `callback(value)` for async code.
 
 ## Transformations
 

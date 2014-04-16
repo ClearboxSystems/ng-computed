@@ -12,7 +12,7 @@ angular.module('ngComputed')
             extractorProvider = provider;
         };
 
-        this.$get = ['$injector', '$parse', '$trackedEval', function($injector, $parse, $trackedEval) {
+        this.$get = ['$injector', '$parse', '$trackedEval', '$exceptionHandler', function($injector, $parse, $trackedEval, $exceptionHandler) {
             var extractor = $injector.invoke(extractorProvider);
 
             var fixWatches = function(lastResult, newDependencies, updateFn) {
@@ -51,23 +51,27 @@ angular.module('ngComputed')
                 var args = initialArgs, deps = {};
                 var run = function() {
                     var result = $trackedEval.trackDependencies.call(self, fn, args);
-                    if (result.thrown === undefined)
+                    if (result.thrown === undefined) {
                         extractor(result.value, callback);
+                    } else {
+                        extractor(undefined, callback);
+                        $exceptionHandler(result.thrown);
+                    }
                     deps = fixWatches(deps, result.dependencies, run);
-                    if (result.thrown !== undefined)
-                        throw result.thrown;
                 };
                 run();
-                var handle = function() {
+                var deregistrationHandle = function() {
+                    if (angular.isFunction(fn.destroy))
+                        fn.destroy();
                     fixWatches(deps, {}, null);
                 };
-                handle.setArgs = function(newArgs) {
+                deregistrationHandle.setArgs = function(newArgs) {
                     if (!angular.equals(args, newArgs)) { // same args, don't re-evaluate
                         args = angular.copy(newArgs);
                         run();
                     }
                 };
-                return handle;
+                return deregistrationHandle;
             };
 
             var dependentChain = function(self, fns, finish, i, args) {

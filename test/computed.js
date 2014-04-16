@@ -226,4 +226,23 @@ describe('$computed', function() {
         expect(watchCounts.ifTrue).toBe(0);
     });
 
+    it('should deregister the computing function itself, if it requests it', function() {
+        var registered = false, deregister = null;
+        var computingFn = function() {
+            registered = true;
+            return true;
+        };
+        computingFn.destroy = function() {
+            registered = false;
+        };
+
+        scope.$apply(function() {
+            deregister = scope.$computed('value', computingFn);
+        });
+        expect(registered).toBe(true);
+
+        deregister();
+        expect(registered).toBe(false);
+    });
+
 });
