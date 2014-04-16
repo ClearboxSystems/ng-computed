@@ -74,9 +74,12 @@ angular.module("example", ["ng"])
     });
 ```
 
+`ng-computed` will do the work of managing watches for you. See
+[this example][5] to see it in action.
+
 [3]: http://knockoutjs.com/documentation/computedObservables.html
 [4]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8?p=preview
-
+[5]: http://plnkr.co/edit/12Z9ppZCpHcfpigXulPy?p=preview
 
 ## Setup
 
