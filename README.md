@@ -31,7 +31,7 @@ going so far as to replace the functions there:
 angular.module('app', ['ngComputed', 'ng'])
     .run(['$rootScope', '$trackedEval', '$computed', function($rootScope, $trackedEval, $computed) {
         // we have to use the prototype, otherwise isolate scopes miss out
-        angular.element($rootScope.constructor.prototype, {
+        angular.extend($rootScope.constructor.prototype, {
             $eval: $trackedEval,
             $computed: $computed
         });
