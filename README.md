@@ -18,9 +18,62 @@ $scope.$computed('computedValue', function() {
 ```
 
 In this case, `$scope.computedValue` will take on the value `"hello
-world!"`, while also reacting to changes to `$scope.string`. While
-this case is almost trivial, the more complex cases are made more
-complex only by the complexity of the computing function.
+world!"`, while also reacting to changes to `$scope.string`.
+
+## Example
+
+As an example, this is a simple translation of the KnockoutJS computed
+observable example:
+
+```javascript
+angular.module("example", ["ngComputed", "ng"])
+    .controller("ExampleController", function($scope, $computed, $trackedEval) {
+        $scope.$computed = $computed;
+        $scope.$eval = $trackedEval;
+    
+        $scope.firstName = "George";
+        $scope.surname = "Clooney";
+        $scope.$computed("fullName", function() {
+            return $scope.$eval("firstName") + " " + $scope.$eval("surname");
+        });
+    })'
+```
+
+```html
+<html ng-app="example">
+    ...
+    <div ng-controller="ExampleController">
+        <div>
+            <input ng-model="firstName">
+            <input ng-model="surname">
+        </div>
+        <div>Hello, {{fullName}}</div>
+    </div>
+    ...
+</html>
+```
+
+[See this example on plunker][3]
+
+[3]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8
+
+To do this in plain AngularJS would require us to manage our watches
+explicitly:
+
+```javascript
+angular.module("example", ["ng"])
+    .controller("ExampleController", function($scope) {
+        $scope.firstName = "George"; 
+        $scope.surname = "Clooney";
+
+        $scope.$watch("firstName", function(firstName) {
+            $scope.fullName = firstName + " " + $scope.surname;
+        });
+        $scope.$watch("surname", function(surname) {
+            $scope.fullName = $scope.firstName + " " + surname;
+        });
+    });
+```
 
 ## Setup
 
@@ -39,8 +92,8 @@ angular.module('app', ['ngComputed', 'ng'])
 ```
 
 For the majority of the documentation we will assume this setup,
-although it is also possible to bind to different names on the scope
-prototype, or to bind these values on any sub-scope.
+although you can also bind to different names on the scope prototype,
+or bind them on any sub-scope.
 
 ## Basic use
 
