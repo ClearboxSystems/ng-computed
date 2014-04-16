@@ -22,8 +22,8 @@ world!"`, while also reacting to changes to `$scope.string`.
 
 ## Example
 
-As an example, this is a simple translation of the KnockoutJS computed
-observable example:
+As an example, this is a simple translation of the KnockoutJS [computed
+observable example][3]:
 
 ```javascript
 angular.module("example", ["ngComputed", "ng"])
@@ -36,7 +36,7 @@ angular.module("example", ["ngComputed", "ng"])
         $scope.$computed("fullName", function() {
             return $scope.$eval("firstName") + " " + $scope.$eval("surname");
         });
-    })'
+    });
 ```
 
 ```html
@@ -53,9 +53,8 @@ angular.module("example", ["ngComputed", "ng"])
 </html>
 ```
 
-[See this example on plunker][3]
+[See this example on plunker][4]
 
-[3]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8
 
 To do this in plain AngularJS would require us to manage our watches
 explicitly:
@@ -74,6 +73,10 @@ angular.module("example", ["ng"])
         });
     });
 ```
+
+[3]: http://knockoutjs.com/documentation/computedObservables.html
+[4]: http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8
+
 
 ## Setup
 
