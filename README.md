@@ -1,4 +1,4 @@
-# ng-computed
+# ng-computed - 0.0.2
 
 Computed properties for [AngularJS][1], à la [Knockout JS][2].
 
