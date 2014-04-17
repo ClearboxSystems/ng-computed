@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ng-computed by ClearboxSystems</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/ClearboxSystems/ng-computed">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/ClearboxSystems/ng-computed/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/ClearboxSystems/ng-computed/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>ng-computed</h1>
+          <p>Computed properties for angularjs</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/ClearboxSystems">ClearboxSystems</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="ng-computed---002" class="anchor" href="#ng-computed---002"><span class="octicon octicon-link"></span></a>ng-computed - 0.0.2</h1>
+
+<p>Computed properties for <a href="http://angularjs.org/">AngularJS</a>, à la <a href="http://knockoutjs.com/">Knockout JS</a>.</p>
+
+<h2>
+<a name="summary" class="anchor" href="#summary"><span class="octicon octicon-link"></span></a>Summary</h2>
+
+<p><code>ng-computed</code> lets you write computed properties without worrying
+about which values to register a <code>$watch</code> on and when.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">string</span> <span class="o">=</span> <span class="s2">"hello"</span><span class="p">;</span>
+<span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s1">'computedValue'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'string'</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" world!"</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>In this case, <code>$scope.computedValue</code> will take on the value <code>"hello
+world!"</code>, while also reacting to changes to <code>$scope.string</code>.</p>
+
+<h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<p>As an example, this is a simple translation of the KnockoutJS <a href="http://knockoutjs.com/documentation/computedObservables.html">computed
+observable example</a>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"ngComputed"</span><span class="p">,</span> <span class="s2">"ng"</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">"ExampleController"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$computed</span><span class="p">,</span> <span class="nx">$trackedEval</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span> <span class="o">=</span> <span class="nx">$computed</span><span class="p">;</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span> <span class="o">=</span> <span class="nx">$trackedEval</span><span class="p">;</span>
+
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">=</span> <span class="s2">"George"</span><span class="p">;</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">surname</span> <span class="o">=</span> <span class="s2">"Clooney"</span><span class="p">;</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s2">"fullName"</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s2">"firstName"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s2">"surname"</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+</pre></div>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">"example"</span><span class="nt">&gt;</span>
+    ...
+    <span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">"ExampleController"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">ng-model=</span><span class="s">"firstName"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;input</span> <span class="na">ng-model=</span><span class="s">"surname"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div&gt;</span>Hello, {{fullName}}<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    ...
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+
+<p><a href="http://plnkr.co/edit/dtK8nqK72fBiGYNNE5x8?p=preview">See this example on plunker</a></p>
+
+<p>To do this in plain AngularJS would require us to manage our watches
+explicitly:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"ng"</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">"ExampleController"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">=</span> <span class="s2">"George"</span><span class="p">;</span> 
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">surname</span> <span class="o">=</span> <span class="s2">"Clooney"</span><span class="p">;</span>
+
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="s2">"firstName"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">firstName</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">$scope</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">firstName</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">surname</span><span class="p">;</span>
+        <span class="p">});</span>
+        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="s2">"surname"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">surname</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">$scope</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="nx">surname</span><span class="p">;</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p><code>ng-computed</code> will do the work of managing watches for you. See
+<a href="http://plnkr.co/edit/12Z9ppZCpHcfpigXulPy?p=preview">this example</a> to see it in action.</p>
+
+<h2>
+<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>At the top level we can add our functions to the root scope, even
+going so far as to replace the functions there:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngComputed'</span><span class="p">,</span> <span class="s1">'ng'</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">run</span><span class="p">([</span><span class="s1">'$rootScope'</span><span class="p">,</span> <span class="s1">'$trackedEval'</span><span class="p">,</span> <span class="s1">'$computed'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">,</span> <span class="nx">$trackedEval</span><span class="p">,</span> <span class="nx">$computed</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// we have to use the prototype, otherwise isolate scopes miss out</span>
+        <span class="nx">angular</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">$eval</span><span class="o">:</span> <span class="nx">$trackedEval</span><span class="p">,</span>
+            <span class="nx">$computed</span><span class="o">:</span> <span class="nx">$computed</span>
+        <span class="p">});</span>
+    <span class="p">}]);</span>
+</pre></div>
+
+<p>For the majority of the documentation we will assume this setup,
+although you can also bind to different names on the scope prototype,
+or bind them on any sub-scope.</p>
+
+<h2>
+<a name="basic-use" class="anchor" href="#basic-use"><span class="octicon octicon-link"></span></a>Basic use</h2>
+
+<p>For an average use case there shouldn't be much need to think
+particularly hard about how you write computed properties. Just write
+a function to calculate the value from other values on the scope,
+using <code>$eval</code> to read from the scope instead of doing so yourself.</p>
+
+<p>As a relatively meaningless example:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s1">'computedValue'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'operation'</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s1">'addition'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'add1'</span><span class="p">)</span> <span class="o">+</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'add2'</span><span class="p">);</span>
+    <span class="k">case</span> <span class="s1">'subtraction'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'sub1'</span><span class="p">)</span> <span class="o">-</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'sub2'</span><span class="p">);</span>
+    <span class="k">case</span> <span class="s1">'multiplication'</span><span class="o">:</span>
+        <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'mul1'</span><span class="p">)</span> <span class="o">*</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'mul2'</span><span class="p">);</span>
+    <span class="k">case</span> <span class="s1">'division'</span><span class="o">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'div2'</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'div1'</span><span class="p">)</span> <span class="o">/</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'div2'</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>From this, <code>ng-computed</code> will work out all the details of what needs
+to be watched, and when. So, if <code>$scope.operation == "division"</code> and
+<code>$scope.div2 == 0</code> then you'll only have watches registered on
+<code>$scope.operation</code> and <code>$scope.div2</code> values, but if <code>$scope.div2 != 0</code>
+then you'll have three watches: <code>$scope.operation</code>, <code>$scope.div1</code> and
+<code>$scope.div2</code>.</p>
+
+<h2>
+<a name="watches" class="anchor" href="#watches"><span class="octicon octicon-link"></span></a>Watches</h2>
+
+<p>By default, <code>$trackedEval</code> tracks all dependencies as deep equality
+watches. This can be quite inefficient, especially for dependencies on
+large objects, so <code>ng-computed</code> provides two tools to help:</p>
+
+<ol>
+<li>
+<p><code>$watch</code> batching</p>
+
+<p>Shipped along with <code>ng-computed</code> is a service called
+<code>$batchedWatch</code>. It's a drop-in replacement for <code>Scope.$watch</code>
+which can be used as <code>$watch</code> on the root scope (or on any
+sub-scope) and will batch together expression watches where
+possible. This can mean that multiple deep watches on the same
+large object will only incur one <code>angular.copy</code>/<code>angular.equals</code>
+per change.</p>
+</li>
+<li>
+<p><code>$eval{Reference,Equal,Collection}</code></p>
+
+<p>The <code>$trackedEval</code> service is not just a simple function, there
+are in fact three variations of <code>$trackedEval</code> which each track
+the dependency as one of the varieties of watch:</p>
+
+<ul>
+<li>
+<code>$evalReference</code>, as a reference watch</li>
+<li>
+<code>$evalEqual</code>, as a deep equality watch</li>
+<li>
+<code>$evalCollection</code>, as a collection watch</li>
+</ul>
+<p>These can be placed on a scope and used as normal:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$evalReference</span> <span class="o">=</span> <span class="nx">$trackedEval</span><span class="p">.</span><span class="nx">$evalReference</span><span class="p">;</span>
+<span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s1">'computedValue'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$evalReference</span><span class="p">(</span><span class="s1">'shallowWatchedValue'</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>By default <code>$trackedEval</code> is the <code>$evalEquals</code> function, but it
+can be configured using angular's configuration mechanism:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngComputed'</span><span class="p">,</span> <span class="s1">'ng'</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">config</span><span class="p">([</span><span class="s1">'$trackedEvalProvider'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$trackedEvalProvider</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$trackedEvalProvider</span><span class="p">.</span><span class="nx">setDefaultWatchType</span><span class="p">(</span><span class="s1">'equal'</span> <span class="cm">/* or 'reference' or 'collection'*/</span><span class="p">);</span>
+<span class="p">}]);</span>
+</pre></div>
+</li>
+</ol><h2>
+<a name="extractors" class="anchor" href="#extractors"><span class="octicon octicon-link"></span></a>Extractors</h2>
+
+<p>By default, <code>$computed</code> will extract a value from a <code>$q</code> promise if
+it's returned from the computed function:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s1">'extracted'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">$q</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+    <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">'a value'</span><span class="p">);</span> <span class="c1">// could happen later</span>
+    <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>This behaviour of "extracting" a value from the result of a
+<code>$computed</code> function is open for customisation through angular's
+configuration mechanism. This is how the default extractor is
+implemented:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngComputed'</span><span class="p">,</span> <span class="s1">'ng'</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">config</span><span class="p">([</span><span class="s1">'$computedProvider'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$computedProvider</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$computedProvider</span><span class="p">.</span><span class="nx">provideExtractor</span><span class="p">([</span><span class="s1">'$q'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$q</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">$q</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">value</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+            <span class="p">};</span>
+        <span class="p">}]);</span>
+    <span class="p">}]);</span>
+</pre></div>
+
+<p>It's the extractor's responsibility to ensure that any changes are
+<code>$digest</code>ed after extraction. This can usually be achieved by calling
+<code>$rootScope.$apply()</code> after invoking <code>callback(value)</code> for async code.</p>
+
+<h2>
+<a name="transformations" class="anchor" href="#transformations"><span class="octicon octicon-link"></span></a>Transformations</h2>
+
+<p>Thus far we have seen <code>$computed</code> called with a function in the second
+argument, but it is also valid to call it with an array of
+functions. Each of these functions will be called in sequence, with
+each being given the result returned by the previous function
+(post-extraction).</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$computed</span><span class="p">(</span><span class="s1">'transformedValue'</span><span class="p">,</span> <span class="p">[</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'baseValue'</span><span class="p">);</span>
+<span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">previous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">previous</span> <span class="o">+</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'valueA'</span><span class="p">);</span>
+<span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">previous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">previous</span> <span class="o">+</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="s1">'valueB'</span><span class="p">);</span>
+<span class="p">}]);</span>
+</pre></div>
+
+<p>Each of these transformation functions may have a separate set of
+dependencies. If a function's dependencies change then that function
+will be re-evaluated, which may trigger the evaluation of the
+following functions if the return value has changed.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
