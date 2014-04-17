@@ -1,0 +1,72 @@
+<html ng-app="app">
+  <head>
+    <title>$computed example</title>
+    <style>
+     div.top-level {
+       width: 45%;
+       float: left;
+     }
+    </style>
+  </head>
+  <body>
+    <div ng-controller="ComputedController" class="top-level">
+      <div>
+        <h2>ng-computed</h2>
+        <div><label>Data:
+          <select ng-model="url">
+            <option value="./index.html">index.html</option>
+            <option value="./names.txt">names</option>
+            <option value="./nouns.txt">nouns</option>
+          </select>
+        </label></div>
+        <div><label>Search: <input type="text" ng-model="search"></label></div>
+        <div><label><input type="checkbox" ng-model="caseSensitive"> case sensitive</label></div>
+        <div><label>Output case:
+          <select ng-model="outputCase">
+            <option value="default" selected>Leave unchanged</option>
+            <option value="lower">Lowercase</option>
+            <option value="upper">Uppercase</option>
+          </select>
+        </label></div>
+        <div><button ng-click="stop()">Freeze output!</button></div>
+        <div>
+          <h2>Matching lines:</h2>
+          <pre>
+            <div ng-repeat="line in matchingLines track by $index">{{ line }}</div>
+          </pre>
+        </div>
+      </div> 
+    </div>
+    <div ng-controller="PureAngularController" class="top-level">
+      <div>
+        <h2>pure AngularJS</h2>
+        <div><label>Data:
+          <select ng-model="url">
+            <option value="./index.html">index.html</option>
+            <option value="./names.txt">names</option>
+            <option value="./nouns.txt">nouns</option>
+          </select>
+        </label></div>
+        <div><label>Search: <input type="text" ng-model="search"></label></div>
+        <div><label><input type="checkbox" ng-model="caseSensitive"> case sensitive</label></div>
+        <div><label>Output case:
+          <select ng-model="outputCase">
+            <option value="default" selected>Leave unchanged</option>
+            <option value="lower">Lowercase</option>
+            <option value="upper">Uppercase</option>
+          </select>
+        </label></div>
+        <div><button ng-click="stop()">Freeze output!</button></div>
+        <div>
+          <h2>Matching lines:</h2>
+          <pre>
+            <div ng-repeat="line in matchingLines track by $index">{{ line }}</div>
+          </pre>
+        </div>
+      </div> 
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+    <script src="../../dist/ng-computed.js"></script>
+    <script src="comparison.js"></script>
+  </body>
+</html>
