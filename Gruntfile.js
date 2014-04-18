@@ -19,7 +19,7 @@ module.exports = function (grunt) {
         },
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy") %> */'
+                banner: '/*! <%= pkg.name %> <%= pkg.version %> */'
             },
             jid: {
                 files: {
