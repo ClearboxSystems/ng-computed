@@ -1,12 +1,11 @@
 # Transformations
 
-The `$computed` method is usually called with a single function as
-it's second argument. This function is used to calculate the value
-which is eventually used as the scope's property. Another valid form
-is to call `$computed` with an array of functions as the second
-argument. Each of these functions will be called in sequence, with
-each being given the result returned by the previous function
-(post-extraction).
+The `$computed` method is usually called with a single function as its
+second argument. This function is used to calculate the value which is
+eventually used as the scope's property. Another valid form is to call
+`$computed` with an array of functions as the second argument. Each of
+these functions will be called in sequence, with each being given the
+result returned by the previous function (post-extraction).
 
 ## Synchronous code
 
