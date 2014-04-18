@@ -11,7 +11,7 @@ available to any scopes in our program. (We have to put it on the
 `Scope` prototype rather than on the `$rootScope`, because isolate
 scopes don't inherit from the `$rootScope`.)
 
-### Override `$eval`
+### Overriding `$eval`
 
 The `$trackedEval` service gives you a drop-in replacement for
 `Scope.$eval`, so it's possible to replace `Scope.$eval` without
@@ -28,7 +28,7 @@ angular.module('app', ['ngComputed', 'ng'])
     });
 ```
 
-### Don't override `$eval`
+### Not overriding `$eval`
 
 If you don't want to override `Scope.$eval` then you can bind it to a
 different name instead. `ng-computed` makes no assumptions about what
