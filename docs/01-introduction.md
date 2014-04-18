@@ -26,7 +26,12 @@ mechanisms, and it will be recalculated whenever the values of
 ## A comparative example
 
 In order to compare the `ng-computed` approach with vanilla AngularJS,
-let's build a (very) simple application.
+let's build a simple application.
+
+For this example we're going to be leveraging `ng-computed`'s
+automatic promise unwrapping and transformation functions to
+demonstrate a simple and easily understood implementation of a simple
+specification.
 
 ### Specification
 
@@ -194,7 +199,7 @@ This has a few advantages over the pure AngularJS implementation:
 
 A pure AngularJS implementation could be written to fix some of these
 issues, but particularly the point of automatic dependency management
-is difficult to fix without an implementation similar to
+is difficult to solve without an implementation similar to
 `ng-computed`. As a practical note, writing this example with
 `ng-computed` was relatively simple and had few errors, whereas
 writing it in pure AngularJS resulted in a number of minor mistakes
@@ -208,4 +213,4 @@ For more of an explanation of how `ng-computed` works, please see
 [/docs][4].
 
 [3]: https://raw.githack.com/ClearboxSystems/ng-computed/master/examples/comparison/index.html
-[4]: https://github.com/ClearboxSystems/ng-computed/tree/master/docs
+[4]: ../docs
