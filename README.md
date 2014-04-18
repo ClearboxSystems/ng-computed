@@ -106,7 +106,7 @@ or bind them on any sub-scope.
 We're currently working on proper documentation, but for now you can
 read the documents in [/docs/][6].
 
-There are three main parts to `ng-extracted`:
+There are three main parts to `ng-computed`:
 
 * [watches][7]: How are watches registered? What kinds of watches are
   registered? How can I control this?
