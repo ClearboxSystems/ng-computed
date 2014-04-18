@@ -2,6 +2,8 @@
 
 Computed properties for [AngularJS][1], à la [Knockout JS][2].
 
+    bower install ng-computed
+
 [1]: http://angularjs.org/
 [2]: http://knockoutjs.com/
 
