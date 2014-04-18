@@ -14,7 +14,7 @@ module.exports = function (grunt) {
                     'src/**/*.js',
                     'src/suffix.js'
                 ],
-                dest: 'dist/<%= library.name %>.js'
+                dest: '<%= library.name %>.js'
             }
         },
         uglify: {
@@ -23,7 +23,7 @@ module.exports = function (grunt) {
             },
             jid: {
                 files: {
-                    'dist/<%= library.name %>.min.js': ['<%= concat.library.dest %>']
+                    '<%= library.name %>.min.js': ['<%= concat.library.dest %>']
                 }
             }
         },
