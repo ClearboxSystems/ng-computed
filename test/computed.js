@@ -4,24 +4,39 @@
 
 describe('$computed', function() {
 
-    var scope, q, timeout;
+    beforeEach(function() {
+        // we'd like our own custom matcher, please
+        this.addMatchers({
+            toBeOneOf: function(expecteds) {
+                var actual = this.actual;
+                return expecteds.some(function(expected) {
+                    return actual === expected;
+                });
+            }
+        });
+    });
+
+    var scope, q, timeout, extractor;
     beforeEach(module('ngComputed'));
-    /*beforeEach(function() {
-        angular.module('ng-computed')
+    beforeEach(function() {
+        angular.module('ngComputed')
             .config(function($computedProvider) {
-                $computedProvider.provideExtractor(['$q', function() {
+                $computedProvider.provideExtractor(function($q) {
                     return function(value, callback) {
-                        callback(value + 1);
+                        extractor(value, callback);
                     };
-                }]);
+                });
             });
-    });*/
+    });
     beforeEach(inject(function($computed, $trackedEval, $rootScope, $q, $timeout) {
         $rootScope.$eval = $trackedEval;
         $rootScope.$computed = $computed;
         scope = $rootScope.$new();
         q = $q;
         timeout = $timeout;
+        extractor = function(value, callback) {
+            $q.when(value).then(callback, callback);
+        };
     }));
 
     it('should run transformation functions in sequence', function() {
@@ -110,24 +125,87 @@ describe('$computed', function() {
     });
 
     it("should, by default, extract values from promises", function(done) {
-        runs(function() {
-            var deregister, deferred;
+        var deregister, deferred;
+        scope.$apply(function() {
+            deregister = scope.$computed('value', function() {
+                deferred = q.defer();
+                return deferred.promise;
+            });
+        });
+        expect(scope.value).toBeUndefined();
+
+        scope.$apply(function() {
+            deferred.resolve(10); // we can resolve in a digest cycle and it'll propagate immediately
+        });
+        expect(scope.value).toBe(10);
+    });
+
+    describe("running extractors", function() {
+        var extractorRunCount;
+        beforeEach(function() {
+            extractorRunCount = 0;
+            extractor = function(value, callback) {
+                extractorRunCount++;
+                // expect to always be run in a digest cycle, somehow
+                expect(scope.$$phase).toBeOneOf(["$digest", "$apply"]); 
+                q.when(value).then(callback);
+            };
+        });
+
+        it("should run simple extractors in a $digest", function() {
             scope.$apply(function() {
-                deregister = scope.$computed('value', function() {
-                    deferred = q.defer();
+                scope.x = 0;
+                scope.$computed("value", function() {
+                    return scope.$eval("x") + 1;
+                });
+            });
+            expect(extractorRunCount).toBe(2);
+        });
+
+        it("should run promise extractors in a $digest", function() {
+            var deferred = q.defer();
+            scope.$apply(function() {
+                scope.$computed("value2", function() {
                     return deferred.promise;
                 });
             });
-            expect(scope.value).toBeUndefined();
+            // don't need to resolve, because the extractor runs immediately
+            expect(extractorRunCount).toBe(1);
+        });
 
+        it("should run extractors on transformations in a $digest", function() {
             scope.$apply(function() {
-                deferred.resolve(10); // we can resolve in a digest cycle and it'll propagate immediately
+                scope.a = 1;
+                scope.b = 2;
+                scope.$computed("sum", [function() {
+                    return scope.$eval("a");
+                }, function(val) {
+                    return scope.$eval("b");
+                }]);
             });
+            expect(extractorRunCount).toBe(4);
+            scope.$apply(function() {
+                scope.a = 10;
+            });
+            expect(extractorRunCount).toBe(6);
         });
-        waitsFor(function(){return scope.value == 10;}, 100);
-        runs(function() {
-            expect(scope.value).toBe(10);
+
+        it("should run extractors on transformations from promises in a $digest", function() {
+            var deferred = q.defer();
+            scope.$apply(function() {
+                scope.$computed("sum", [function() {
+                    return deferred.promise;
+                }, function(val) {
+                    return val + 1;
+                }]);
+            });
+            expect(extractorRunCount).toBe(1);
+            scope.$apply(function() {
+                deferred.resolve(10);
+            });
+            expect(extractorRunCount).toBe(2);
         });
+        
     });
 
     it('should update dependent values transitively in a single digest cycle (if values are available)', function() {

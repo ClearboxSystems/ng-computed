@@ -13,9 +13,27 @@ continue the computation (whether that be setting a property on the
 scope or calling the next function in line - see the section on
 transformations).
 
+## A note about the `$digest` cycle
+
 It's the extractor's responsibility to ensure that any changes are
-`$digest`ed after extraction. This can usually be achieved by calling
-`$rootScope.$apply()` after invoking `callback(value)` for async code.
+`$digest`ed after extraction. The extractor may assume that it will
+have been invoked in either the `$apply` or `$digest` phase, and it
+should only invoke `callback` in either of those phases.
+
+If `callback` is invoked synchronously then nothing further needs to
+be done, but if `callback` is invoked asynchronously, and outside the
+angular `$digest` cycle, then you must wrap the invocation of
+`callback` with a `$rootScope.apply` call, like this:
+
+```javascript
+$rootScope.$apply(function() {
+    callback(value);
+});
+```
+
+This is usually not a problem when using angular services (such as
+`$q` or `$timeout`), but when using third-party promises or other
+callback mechanisms it must be considered.
 
 ## Default configuration
 
