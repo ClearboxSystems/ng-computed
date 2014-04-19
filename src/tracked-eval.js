@@ -34,7 +34,7 @@ angular.module('ngComputed')
                 if (readVars) {
                     if (angular.isFunction(expr))
                         throw new Error("Function used in $trackedEval while tracking dependencies. Instead, call the function and use $trackedEval internally.");
-                    readVars[this.$id + "|" + expr + "|" + type] = {
+                    readVars[this.$id + "|" + type + "|" + expr] = {
                         scope: this,
                         expr: expr,
                         type: type

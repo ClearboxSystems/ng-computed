@@ -6,6 +6,9 @@
        width: 45%;
        float: left;
      }
+     .dependency-info {
+       float: right;
+     }
     </style>
   </head>
   <body>
@@ -35,7 +38,7 @@
             <div ng-repeat="line in matchingLines track by $index">{{ line }}</div>
           </pre>
         </div>
-      </div> 
+      </div>
     </div>
     <div ng-controller="PureAngularController" class="top-level">
       <div>
@@ -66,7 +69,7 @@
       </div> 
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
-    <script src="../../dist/ng-computed.js"></script>
+    <script src="../../ng-computed.js"></script>
     <script src="comparison.js"></script>
   </body>
 </html>

@@ -4,24 +4,40 @@
   </head>
   <body>
     <div ng-controller="ExampleCtrl">
+      <p>
+        This example shows how directives can use $computed as
+        well. Here we have a directive that sums the value of a
+        directive, and the value of a property read off the $parent
+        scope directly, then adds 10 and prints the result.
+      </p>
+      <p>
+        The "entered value" is passed to the directive's isolate scope
+        using "=" (two way binding). The "value read by directive via
+        parent" is read with $scope.$parent.$eval("readByDirective").
+      </p>
       <div>
-        Directive: <computing-directive></computing-directive>
+        Directive: <computing-directive value="inputValue"></computing-directive>
       </div>
-
       <div>
-        <label>Use custom value: <input type="checkbox" ng-model="useCustom"></label>
+        <label>Entered value: <input type="number" ng-model="inputValue"></label>
       </div>
       <div>
-        <label>Custom value: <input type="text" ng-model="customValue"></label>
-      </div>
-      <div>
-        Result: <span ng-bind="computedValue"></span>
+        <label>Value read by directive via $parent (bad style, but will still work): <input type="number" ng-model="readByDirective"></label>
       </div>
       <hr>
-      <div ng-repeat="log in logs track by $index" ng-bind="log"></div>
+      <ul>
+        <li ng-repeat="(expr, deps) in $computed.dependencyGraph()">
+          <strong>{{ expr }}</strong> depends on:
+          <ul>
+            <li ng-repeat="(dep, val) in deps">
+              <strong>{{ dep }}</strong>, last processed as: <strong>{{ val | json }}</strong>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
-    <script src="../../dist/ng-computed.js"></script>
+    <script src="../../ng-computed.js"></script>
     <script src="directive-example.js"></script>
   </body>
 </html>
