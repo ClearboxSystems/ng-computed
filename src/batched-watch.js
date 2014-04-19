@@ -1,14 +1,8 @@
 /*global angular,setTimeout*/
 
 angular.module('ngComputed')
-    .factory('$batchedWatch', ['$rootScope', function($rootScope) {
+    .factory('$batchedWatch', ['$rootScope', '$exceptionHandler', function($rootScope, $exceptionHandler) {
         var watch = $rootScope.$watch;
-
-        var throwLater = function(e) {
-            setTimeout(function() {
-                throw e;
-            }, 0);
-        };
 
         var nextWatchId = 1;
         var registering = false;
@@ -21,7 +15,7 @@ angular.module('ngComputed')
                     lastArgs.registering = true;
                     try {
                         f.apply(lastArgs.self, lastArgs.args);
-                    } catch (e) { throwLater(e); }
+                    } catch (e) { $exceptionHandler(e); }
                     delete lastArgs.registering;
                 }
             } else {
@@ -32,7 +26,7 @@ angular.module('ngComputed')
                     angular.forEach(watchersForExpr.fns, function(fn) {
                         try {
                             fn.apply(self, args);
-                        } catch (e) { throwLater(e); }
+                        } catch (e) { $exceptionHandler(e); }
                     });
                     watchersForExpr.lastArgs = {
                         self: self,
