@@ -364,8 +364,8 @@ describe('$computed', function() {
                     var dependencyGraph = scope.$computed.dependencyGraph();
 
                     expect(dependencyGraph).toEqual(pairsToObject(
-                        [id + "|value#0", pairsToObject([id + "|equal|a", 10])],
-                        [id + "|value#1", pairsToObject([id + "|equal|b", 20])]
+                        [id + "|value#0", pairsToObject([id + "|a|equal", 10])],
+                        [id + "|value#1", pairsToObject([id + "|b|equal", 20])]
                     ));
                     deregister();
                     expect(dependencyGraph).toEqual({});
