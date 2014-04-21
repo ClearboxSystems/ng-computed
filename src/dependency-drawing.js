@@ -56,7 +56,7 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                 var realDep = dep.substr(0, dep.lastIndexOf("|"));
                 nodes[realDep] = true;
             }
-        };
+        }
         return nodes;
     };
 
