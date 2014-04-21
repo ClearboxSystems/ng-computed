@@ -1,4 +1,4 @@
-/*global angular*/
+/*global angular,dependencyDrawingFunction*/
 angular.module('ngComputed')
     .provider('$computed', [function() {
         var extractorProvider = ['$q', function($q) {
@@ -17,7 +17,7 @@ angular.module('ngComputed')
             debug = debugValue;
         };
 
-        this.$get = ['$injector', '$parse', '$trackedEval', '$log', '$exceptionHandler', function($injector, $parse, $trackedEval, $log, $exceptionHandler) {
+        this.$get = ['$injector', '$parse', '$trackedEval', '$log', '$exceptionHandler', '$rootScope', function($injector, $parse, $trackedEval, $log, $exceptionHandler, $rootScope) {
             var extractor = $injector.invoke(extractorProvider);
 
             var dependencyGraph = {}; // only used in debug mode
@@ -135,6 +135,8 @@ angular.module('ngComputed')
             $computed.dependencyGraph = function() {
                 return (debug ? dependencyGraph : null);
             };
+
+            $computed.drawDependencies = dependencyDrawingFunction($rootScope, $computed);
 
             return $computed;
         }];

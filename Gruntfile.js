@@ -11,6 +11,7 @@ module.exports = function (grunt) {
                 src: [
                     'src/prefix.js',
                     'src/module.js',
+                    'src/dependency-drawing.js',
                     'src/**/*.js',
                     'src/suffix.js'
                 ],
