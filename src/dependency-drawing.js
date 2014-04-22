@@ -1,14 +1,7 @@
 /*global angular*/
 var dependencyDrawingFunction = function($rootScope, $computed) {
-    var setUpForce = function(d3, root, width, height) {
-        var force = d3.layout.force()
-                .charge(-300)
-                .gravity(0.1)
-                .distance(50)
-        //.linkDistance(40)
-                .size([width, height]);
-
-        force.on('tick', function() {
+    var tickFn = function(root) {
+        return function() {
             root.selectAll('line.edge')
                 .attr({
                     "x1": function(d) { return d.source.x; },
@@ -20,20 +13,28 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                 .attr('transform', function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
-        });
+        };
+    };
+
+    var setUpForce = function(d3, tick, width, height) {
+        var force = d3.layout.force()
+                .charge(-300)
+                .gravity(0.1)
+                .distance(50)
+        //.linkDistance(40)
+                .size([width, height]);
+
+        force.on('tick', tick);
 
         return force;
     };
 
-    var setUpElement = function(d3, element, width, height) {
-        var svg = d3.select(element)
-                .attr("width", width)
-                .attr("height", height);
+    var setUpElement = function(svg, id) {
         var root = svg.append("g");
         root.append("defs")
             .call(function(defs) {
                 defs.append("marker")
-                    .attr("id", "arrowhead")
+                    .attr("id", "arrowhead" + id)
                     .attr("viewBox", "0 -5 10 10")
                     .attr("refX", 15)
                     .attr("markerWidth", 6)
@@ -84,7 +85,8 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
             var lastNode = lastNodes[id] || {};
             nodes[id] = {
                 id: id, name: id,
-                x: lastNode.x, y: lastNode.y
+                x: lastNode.x, y: lastNode.y,
+                fixed: lastNode.fixed
             };
             return nodes[id];
         });
@@ -108,7 +110,9 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
         return result;
     };
 
+    var lastId = 0;
     return function(d3, element, options) {
+        var id = ++lastId;
         var width = options.width;
         var height = options.height;
 
@@ -121,7 +125,10 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                               "scale(" + scale + ")");
                 });
 
-        d3.select(element)
+        var selection = d3.select(element)
+                .attr({"width": width, "height": height});
+
+        var background = selection
             .append("rect")
             .attr({
                 "fill": "#FFF",
@@ -130,8 +137,25 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
             })
             .call(zoom);
 
-        var root = setUpElement(d3, element, options.width, options.height);
-        var force = setUpForce(d3, root, options.width, options.height);
+        var root = setUpElement(selection, id);
+        var tick = tickFn(root);
+        var force = setUpForce(d3, tick, options.width, options.height);
+
+        var dragMove = d3.behavior.drag()
+                .on("dragstart", function() {
+                    force.stop();
+                })
+                .on("drag", function(d) {
+                    d.px += d3.event.dx;
+                    d.py += d3.event.dy;
+                    d.x += d3.event.dx;
+                    d.y += d3.event.dy;
+                    d.fixed = true;
+                    tick();
+                })
+                .on("dragend", function(d) {
+                    force.resume();
+                });
 
         var lastTrimmed = null, lastNodes = {};
         var deregister = $rootScope.$watch(function() {
@@ -147,7 +171,7 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                 edges.enter().append("line")
                     .attr({
                         "class": "edge",
-                        "marker-end": "url(#arrowhead)"
+                        "marker-end": "url(#arrowhead" + id + ")"
                     })
                     .style({
                         "stroke": "rgb(200, 200, 200)",
@@ -162,12 +186,6 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                         });
                 nodes.enter().append("g")
                     .attr({"class": "node"})
-                // .on('click', function(d) {
-                //     d.displayLabel = !d.displayLabel;
-                // })
-                    .on('mousedown', function(d) {
-                        d.displayLabel = true;
-                    })
                     .on('mouseover', function() {
                         d3.select(this)
                             .select("text")
@@ -180,9 +198,6 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                                 .style({"display": "none"});
                         }
                     })
-                    .on('mouseup', function(d) {
-                        d.displayLabel = false;
-                    })
                     .call(function(selection) {
                         selection.append("text")
                             .style({"display": "none"})
@@ -192,7 +207,7 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                             .attr({"r": 5})
                             .style({"fill": "#aaa"});
                     })
-                    .call(force.drag);
+                    .call(dragMove);
                 nodes.exit().remove();
 
                 force
@@ -201,6 +216,12 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
                     .start();
             }
         });
+
+        deregister.resize = function(width, height) {
+            selection.style({"width": width, "height": height});
+            background.attr({width: width, height: height});
+            force.size([width, height]);
+        };
 
         return deregister;
     };
