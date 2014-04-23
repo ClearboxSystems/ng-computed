@@ -3,11 +3,7 @@ angular.module('ngComputed')
     .provider('$trackedEval', [function() {
         var defaultType = "equal";
         this.setDefaultWatchType = function(type) {
-            if (type == "equal" || type == "reference" || type == "collection") {
-                defaultType = type;
-            } else {
-                throw new Error("Cannot default to watch of type '" + type + "': unknown type");
-            }
+            defaultType = type;
         };
 
         this.$get = ['$parse', function($parse) {
@@ -49,6 +45,9 @@ angular.module('ngComputed')
             var $evalReference = function(expr, locals) {
                 return dependencyTrackingEval.call(this, expr, "reference", locals);
             };
+            var $evalGroup = function(expr, locals) {
+                return dependencyTrackingEval.call(this, expr, "group", locals);
+            };
             var $evalCollection = function(expr, locals) {
                 return dependencyTrackingEval.call(this, expr, "collection", locals);
             };
@@ -56,6 +55,7 @@ angular.module('ngComputed')
             var addAllToExportObject = function(obj) {
                 obj.$evalEqual = $evalEqual;
                 obj.$evalReference = $evalReference;
+                obj.$evalGroup = $evalGroup;
                 obj.$evalCollection = $evalCollection;
                 obj.trackDependencies = trackDependencies;
                 Object.defineProperty(obj, 'trackDependencies', {enumerable: false});
@@ -63,12 +63,15 @@ angular.module('ngComputed')
 
             addAllToExportObject($evalEqual);
             addAllToExportObject($evalReference);
+            addAllToExportObject($evalGroup);
             addAllToExportObject($evalCollection);
 
             if (defaultType == "equal") {
                 return $evalEqual;
             } else if (defaultType == "reference") { 
                 return $evalReference;
+            } else if (defaultType == "group") {
+                return $evalGroup;
             } else if (defaultType == "collection") {
                 return $evalCollection;
             } else {

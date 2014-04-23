@@ -4,7 +4,7 @@
 
 describe('$computed', function() {
 
-    ["equal", "reference", "collection"].forEach(function(type) {
+    ["equal", "reference", "group", "collection"].forEach(function(type) {
         describe('with ' + type + ' watch', function() {
             var scope, run, rootScope;
             beforeEach(module('ngComputed'));

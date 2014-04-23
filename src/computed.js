@@ -47,6 +47,9 @@ angular.module('ngComputed')
                         case "reference":
                             spec.deregister = spec.scope.$watch(spec.expr, onUpdate, spec.type == "equal");
                             break;
+                        case "group":
+                            spec.deregister = spec.scope.$watchGroup(spec.expr, onUpdate);
+                            break;
                         case "collection":
                             spec.deregister = spec.scope.$watchCollection(spec.expr, onUpdate);
                             break;
@@ -64,6 +67,8 @@ angular.module('ngComputed')
                 var args = initialArgs, deps = {};
                 if (debugName)
                     dependencyGraph[debugName] = {};
+                var updateCount = 0;
+                var incUpdates = function(){updateCount++;};
                 var run = function() {
                     var result = $trackedEval.trackDependencies.call(self, fn, args);
                     if (result.thrown === undefined) {
@@ -72,13 +77,14 @@ angular.module('ngComputed')
                         extractor(undefined, callback);
                         $exceptionHandler(result.thrown);
                     }
-                    deps = fixWatches(deps, result.dependencies, run, debugName);
+                    deps = fixWatches(deps, result.dependencies, incUpdates, debugName);
                 };
-                run();
+                var deregisterTrigger = self.$watch(function(){return updateCount;}, run);
                 var deregistrationHandle = function() {
                     if (angular.isFunction(fn.destroy))
                         fn.destroy();
                     fixWatches(deps, {}, null, debugName);
+                    deregisterTrigger();
                     if (debugName)
                         delete dependencyGraph[debugName];
                 };
