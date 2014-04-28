@@ -14,7 +14,7 @@ large objects, so `ng-computed` provides two tools to help:
     large object will only incur one `angular.copy`/`angular.equals`
     per change.
 
-2. `$eval{Reference,Equal,Group,Collection}`
+2. `$eval{Reference,Equal,Collection}`
 
     The `$trackedEval` service is not just a simple function, there
     are in fact three variations of `$trackedEval` which each track
@@ -22,7 +22,6 @@ large objects, so `ng-computed` provides two tools to help:
 
     * `$evalReference`, as a reference watch
     * `$evalEqual`, as a deep equality watch
-    * `$evalGroup`, as a group watch (expects an array of exprs)
     * `$evalCollection`, as a collection watch
 
     These can be placed on a scope and used as normal:
@@ -40,6 +39,6 @@ large objects, so `ng-computed` provides two tools to help:
     ```javascript
     angular.module('app', ['ngComputed', 'ng'])
         .config(['$trackedEvalProvider', function($trackedEvalProvider) {
-            $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'group' or 'collection'*/);
+            $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
     }]);
     ```
