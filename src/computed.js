@@ -47,9 +47,6 @@ angular.module('ngComputed')
                         case "reference":
                             spec.deregister = spec.scope.$watch(spec.expr, onUpdate, spec.type == "equal");
                             break;
-                        case "group":
-                            spec.deregister = spec.scope.$watchGroup(spec.expr, onUpdate);
-                            break;
                         case "collection":
                             spec.deregister = spec.scope.$watchCollection(spec.expr, onUpdate);
                             break;
