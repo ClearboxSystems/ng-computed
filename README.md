@@ -120,8 +120,10 @@ There are three main parts to `ng-computed`:
   a computation without storing intermediate values on the scope. They
   are particularly useful for operations performed after asynchronous
   operations.
+* [debug][9]: A bit of debug information concerning your dependencies
 
 [6]: ./docs/
 [7]: ./docs/03-watches.md
 [8]: ./docs/04-extractors.md
 [9]: ./docs/05-transformations.md
+[10]: ./docs/06-debug.md
