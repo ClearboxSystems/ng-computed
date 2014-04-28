@@ -1,7 +1,7 @@
 /*global angular,setTimeout*/
 
 angular.module('ngComputed')
-    .factory('$batchedWatch', ['$rootScope', '$exceptionHandler', function($rootScope, $exceptionHandler) {
+    .factory('$batchedWatch', ['$rootScope', '$parse', '$exceptionHandler', function($rootScope, $parse, $exceptionHandler) {
         var watch = $rootScope.$watch;
 
         var nextWatchId = 1;
@@ -68,6 +68,10 @@ angular.module('ngComputed')
                 // so fallback to a normal watch
                 return watch.call(this, expr, f, deep);
             } else {
+                if (!angular.isFunction(f)) {
+                    var parsed = $parse(f);
+                    f = function(val, old, scope){ parsed(scope); }; // we need it to be a function
+                }
                 var watchers;
                 if (this.hasOwnProperty('$$batchedWatchers')) {
                     watchers = this.$$batchedWatchers;

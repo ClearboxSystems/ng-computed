@@ -73,4 +73,25 @@ describe('$batchedWatch', function() {
         expect(subscope.$$batchedWatchers).toNotBe(scope.$$batchedWatchers); // new $$batchedWatchers
     });
 
+    it('should not blow up if passed a non-function listener', function() {
+        scope.$apply(function() {
+            scope.$watch('value', undefined);
+        });
+    });
+
+    it('should run as an expression if a string listener is provided', function() {
+        var x = 0;
+        scope.$apply(function() {
+            scope.value = 0;
+            scope.incCounter = function() { x++; };
+            scope.$watch('value', 'incCounter()');
+        });
+        expect(x).toBe(1);
+
+        scope.$apply(function() {
+            scope.value = 100;
+        });
+        expect(x).toBe(2);
+    });
+
 });
