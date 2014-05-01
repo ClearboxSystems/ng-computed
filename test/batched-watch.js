@@ -4,9 +4,10 @@
 
 describe('$batchedWatch', function() {
 
-    var scope;
+    var scope, originalWatch;
     beforeEach(module('ngComputed'));
     beforeEach(inject(function($batchedWatch, $rootScope) {
+        originalWatch = $rootScope.$watch;
         $rootScope.$watch = $batchedWatch;
         scope = $rootScope.$new();
     }));
@@ -92,6 +93,42 @@ describe('$batchedWatch', function() {
             scope.value = 100;
         });
         expect(x).toBe(2);
+    });
+
+    it('should act like a normal $watch function', function() {
+        var batchedRuns = 0, normalRuns = 0;
+        scope.value = 0;
+
+        scope.$apply(function() {
+            scope.$watch('value', function(a, b) {
+                batchedRuns++;
+            });
+            originalWatch.call(scope, 'value', function(a, b) {
+                normalRuns++;
+            });
+            expect(batchedRuns).toBe(0);
+            expect(normalRuns).toBe(0);
+        });
+        expect(batchedRuns).toBe(1);
+        expect(normalRuns).toBe(1);
+
+        batchedRuns = 0, normalRuns = 0;
+        var batchedRuns2 = 0, normalRuns2 = 0;
+        scope.$apply(function() {
+            scope.value = 10;
+            scope.$watch('value', function(a, b) {
+                expect(a).toBe(b); // initialisation run of this watch
+                batchedRuns2++;
+            });
+            originalWatch.call(scope, 'value', function(a, b) {
+                expect(a).toBe(b); // initialisation run of this watch
+                normalRuns2++;
+            });
+        });
+        expect(batchedRuns).toBe(1);
+        expect(normalRuns).toBe(1);
+        expect(batchedRuns2).toBe(1);
+        expect(normalRuns2).toBe(1);
     });
 
 });

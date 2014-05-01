@@ -9,35 +9,28 @@ angular.module('ngComputed')
         var registerWatch = function(watchers, expr, deep, f) {
             var watchersForDepth = watchers[deep];
             var watchersForExpr = watchersForDepth[expr];
-            if (watchersForExpr) {
-                var lastArgs = watchersForExpr.lastArgs;
-                if (lastArgs && !lastArgs.registering) {
-                    lastArgs.registering = true;
-                    try {
-                        f.apply(lastArgs.self, lastArgs.args);
-                    } catch (e) { $exceptionHandler(e); }
-                    delete lastArgs.registering;
-                }
-            } else {
-                watchersForExpr = {fns: {}};
-                watchersForExpr.deregister = watch.call(this, expr, function() {
-                    var self = this;
-                    var args = arguments;
-                    angular.forEach(watchersForExpr.fns, function(fn) {
-                        try {
-                            fn.apply(self, args);
-                        } catch (e) { $exceptionHandler(e); }
-                    });
-                    watchersForExpr.lastArgs = {
-                        self: self,
-                        args: args
-                    };
-                }, deep);
+            if (!watchersForExpr) {
+                watchersForExpr = {
+                    fns: {},
+                    deregister: watch.call(this, expr, function(value, oldValue, scope) {
+                        var self = this;
+                        var args = arguments;
+                        angular.forEach(watchersForExpr.fns, function(fn) {
+                            try {
+                                fn.run.call(self, value, (fn.hasRun ? oldValue : value), scope);
+                                fn.hasRun = true;
+                            } catch (e) { $exceptionHandler(e); }
+                        });
+                    }, deep)
+                };
                 watchersForDepth[expr] = watchersForExpr;
             }
 
             var id = nextWatchId++;
-            watchers[deep][expr].fns[id] = f; 
+            watchersForExpr.fns[id] = {
+                run: f,
+                hasRun: false
+            };
             return id;
         };
 
