@@ -236,7 +236,7 @@ var dependencyDrawingFunction = function($rootScope, $computed) {
 /*global angular,setTimeout*/
 
 angular.module('ngComputed')
-    .factory('$batchedWatch', ['$rootScope', '$parse', '$exceptionHandler', '$timeout', function($rootScope, $parse, $exceptionHandler, $timeout) {
+    .factory('$batchedWatch', ['$rootScope', '$parse', '$exceptionHandler', function($rootScope, $parse, $exceptionHandler) {
         var watch = $rootScope.$watch;
 
         var nextWatchId = 1;
