@@ -95,7 +95,37 @@ describe('$batchedWatch', function() {
         expect(x).toBe(2);
     });
 
-    it('should act like a normal $watch function', function() {
+    it('should run an initialisation run, even when the value hasn\'t changed', function() {
+        var runs = 0;
+        scope.value = 0;
+
+        scope.$apply(function() {
+            scope.$watch('value', function(a, b) {
+                runs++;
+            });
+            expect(runs).toBe(0);
+        });
+        expect(runs).toBe(1);
+
+        runs = 0;
+        scope.$apply(function() {
+            scope.$watch('value', function(a, b) {
+                runs++;
+            });
+        });
+        expect(runs).toBe(1);
+
+        runs = 0;
+        scope.$apply(function() {
+            scope.value = 10;
+            scope.$watch('value', function(a, b) {
+                runs++;
+            });
+        });
+        expect(runs).toBe(3);
+    });
+
+    it('should act (mostly) like a normal $watch function', function() {
         var batchedRuns = 0, normalRuns = 0;
         scope.value = 0;
 

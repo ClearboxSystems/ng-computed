@@ -1,7 +1,7 @@
 /*global angular,setTimeout*/
 
 angular.module('ngComputed')
-    .factory('$batchedWatch', ['$rootScope', '$parse', '$exceptionHandler', function($rootScope, $parse, $exceptionHandler) {
+    .factory('$batchedWatch', ['$rootScope', '$parse', '$exceptionHandler', '$timeout', function($rootScope, $parse, $exceptionHandler, $timeout) {
         var watch = $rootScope.$watch;
 
         var nextWatchId = 1;
@@ -31,6 +31,14 @@ angular.module('ngComputed')
                 run: f,
                 hasRun: false
             };
+            var deregister = watch.call(this, expr, function(value, oldValue, scope) {
+                var fn = watchersForExpr.fns[id];
+                if (fn && !fn.hasRun) {
+                    fn.run.call(this, value, oldValue, scope);
+                    fn.hasRun = true;
+                }
+                deregister(); // only ever do the initialisation part of this
+            });
             return id;
         };
 
