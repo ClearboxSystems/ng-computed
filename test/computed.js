@@ -127,6 +127,54 @@ describe('$computed', function() {
                 expect(scope.value).toBe(27);
             });
 
+            iit('should do what is expected in the transformation documentation example', function() {
+                var run1 = 0, run2 = 0, run3 = 0, run4 = 0;
+                scope.$apply(function() {
+                    scope.a = 3;
+                    scope.b = 5;
+                    scope.c = 23;
+                    scope.$computed('sumIsEven', [function() {
+                        run1++;
+                        return scope.$eval('a') % 2; /* 1 */
+                    }, function(prev) {
+                        run2++;
+                        return (prev + scope.$eval('b')) % 2; /* 2 */
+                    }, function(prev) {
+                        run3++;
+                        return (prev + scope.$eval('c')) % 2; /* 3 */
+                    }, function(val) {
+                        run4++;
+                        return val == 0; /* 4 */
+                    }]);
+                });
+
+                expect(scope.sumIsEven).toBe(false);
+                expect(run1).toBe(1);
+                expect(run2).toBe(1);
+                expect(run3).toBe(1);
+                expect(run4).toBe(1);
+
+                run1 = run2 = run3 = run4 = 0;
+                scope.$apply(function() {
+                    scope.a = 5;
+                });
+                expect(scope.sumIsEven).toBe(false);
+                expect(run1).toBe(1);
+                expect(run2).toBe(0);
+                expect(run3).toBe(0);
+                expect(run4).toBe(0);
+
+                run1 = run2 = run3 = run4 = 0;
+                scope.$apply(function() {
+                    scope.b = 6;
+                });
+                expect(scope.sumIsEven).toBe(true);
+                expect(run1).toBe(0);
+                expect(run2).toBe(1);
+                expect(run3).toBe(1);
+                expect(run4).toBe(1);
+            });
+
             it('should only re-run relevant steps in a transformation sequence after an update', function() {
                 var deregister, topRuns = 0, aRuns = 0, bRuns = 0;
                 scope.$apply(function() {
@@ -426,8 +474,7 @@ describe('$computed', function() {
                     def1.resolve(0); // this should be ignored now
                 });
                 expect(scope.computed).toBe(100);
-            });
-
+            }); 
 
             var pairsToObject = function() {
                 var result = {};

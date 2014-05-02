@@ -1,33 +1,35 @@
-* ng-computed
+#+TITLE: ng-computed
+#+AUTHOR: Carlo Zancanaro
+#+OPTIONS: toc:1
 
 Computed properties for [[http://angularjs.org/][AngularJS]], à la [[http://knockoutjs.com/][Knockout JS]].
 
 : bower install ng-computed
 
 
-** Motivation
+* Motivation
 
 When writing applications within the AngularJS framework, it is often
 necessary to compute values for scope properties which are dependent
 on other scope values. AngularJS provides a basic mechanism to keep
-these values up to date (=$watch=, and its variants), but these can
+these values up to date (~$watch~, and its variants), but these can
 often become unwieldy as your dependencies become more complex or
 dynamic.
 
-This is the problem that ~ng-computed~ is aiming to solve. Within a
-=$computed= value's body it is not necessary to explicitly declare
+This is the problem that =ng-computed= is aiming to solve. Within a
+~$computed~ value's body it is not necessary to explicitly declare
 what values you depend on, or when this value should be
-re-evaluated. ~ng-computed~ will take care of all the details so you
+re-evaluated. =ng-computed= will take care of all the details so you
 can focus on your actual computation.
 
 If you're not convinced that this is such a great idea, take a look at
 [[Hello%20World%20Example][the example below]]. If you're interested in how everything works, jump
 down to [[Internals][our description of the internals]]. If you're just interested in
-using ~ng-computed~ then [[Installation][installation is probably the best place to
+using =ng-computed= then [[Installation][installation is probably the best place to
 start]].
 
 
-** Hello World Example
+* Hello World Example
 
 #+BEGIN_SRC js
   angular.module('app', ['ngComputed', 'ng'])
@@ -41,30 +43,31 @@ start]].
       });
 #+END_SRC
 
-=$scope.helloWorld= will be kept updated by the usual AngularJS watch
+~$scope.helloWorld~ will be kept updated by the usual AngularJS watch
 mechanisms, and it will be recalculated whenever the values of
-=$scope.hello= or =$scope.world= change.
+~$scope.hello~ or ~$scope.world~ change.
 
 For a more complete example, see [[Comparison to pure AngularJS][the comparative example below]].
 
 
-** Installation
+* Installation
 
-There are a few options for how to set up ~ng-computed~ in your
-project.
+There are a few options for how to set up =ng-computed= in your
+project. Throughout the documentation we're assuming you've opted for
+/Globally Available/ and /Overriding ~Scope.$eval~ /.
 
-*** Globally available
+** Globally available
 
-We can add the =$computed= and =$trackedEval= methods at the
-top-level of our application, on the =Scope= prototype. This makes
+We can add the ~$computed~ and ~$trackedEval~ methods at the
+top-level of our application, on the ~Scope~ prototype. This makes
 them readily available to any scopes, including isolate scopes. When
-placing values on the =Scope= prototype we have another decision to
-make: do we want to replace =Scope.$eval=.
+placing values on the ~Scope~ prototype we have another decision to
+make: do we want to replace ~Scope.$eval~.
 
-**** Overriding =Scope.$eval=
+*** Overriding ~Scope.$eval~
 
-The =$trackedEval= service gives you a drop-in replacement for
-=Scope.$eval=, so we can replace =Scope.$eval= with =$trackedEval=
+The ~$trackedEval~ service gives you a drop-in replacement for
+~Scope.$eval~, so we can replace ~Scope.$eval~ with ~$trackedEval~
 without breaking anything.
 
 #+BEGIN_SRC js
@@ -78,10 +81,11 @@ without breaking anything.
       });
 #+END_SRC
 
-**** Not overriding =Scope.$eval=
 
-If you don't want to override =Scope.$eval= then you can choose a
-different name instead. ~ng-computed~ makes no assumptions about what
+*** Not overriding ~Scope.$eval~
+
+If you don't want to override ~Scope.$eval~ then you can choose a
+different name instead. =ng-computed= makes no assumptions about what
 names you use in your application.
 
 #+BEGIN_SRC js
@@ -95,11 +99,12 @@ names you use in your application.
       });
 #+END_SRC
 
-*** Locally available
 
-If you don't want to add =$computed= or =$trackedEval= to the =Scope=
-prototype then you can still use ~ng-computed~. Within any scope you
-can add =$computed= and =$trackedEval=, using any names you desire,
+** Locally available
+
+If you don't want to add ~$computed~ or ~$trackedEval~ to the ~Scope~
+prototype then you can still use =ng-computed=. Within any scope you
+can add ~$computed~ and ~$trackedEval~, using any names you desire,
 and they will function normally.
 
 #+BEGIN_SRC js
@@ -111,23 +116,201 @@ and they will function normally.
 #+END_SRC
 
 
-** Custom behaviour
+* Usage
 
-*** Watches
+Using =ng-computed= is quite simple. When you wish to create a
+computed property, call ~$computed~ with the property's name (as a
+string) and a specification of how to calculate the value (usually a
+function, but see the section on [[Transformations]] below). Based on the
+specification, then, the value for the expressions is set.
 
-By default, =$trackedEval= tracks all dependencies as *deep equality*
+Here is an example of a ~$computed~ property being set to a constant
+value: ~10~.
+#+BEGIN_SRC js
+  $scope.$computed('computedExpression', function() {
+      return 10;
+  });
+#+END_SRC
+
+But setting constants isn't really interesting. We can already do
+that. It's far more interesting to use ~$computed~ to calculate
+values which depend on other things! In order to tell ~$computed~
+about the dependency, we always retrieve values using ~$trackedEval~
+(which, in our case, is available as ~$scope.$eval~):
+
+#+BEGIN_SRC js
+  $scope.firstName = "George";
+  $scope.surname = "Clooney";
+  $scope.$computed('fullName', function() {
+      return $scope.eval('firstName')
+          + " "
+          + $scope.eval('surname');
+  });
+#+END_SRC
+
+Now we have a value which will keep itself updated! If we modify
+~$scope.firstName~ and ~$scope.surname~, ~$scope.fullName~ will be
+updated as well.
+
+** A small aside concerning purity
+
+It's important to make sure that the specification that you provide to
+~$computed~ is *almost [[https://en.wikipedia.org/wiki/Pure_function#Pure_expressions][pure]]*. What we mean by almost pure is that the
+function must give the same result given the same arguments, but only
+if you also consider the result of each ~$trackedEval~ invocation as
+an additional (implicit) argument. Almost pure functions should also
+have no side effects.
+
+In our example from above, the function calculating ~$scope.fullName~
+has no formal arguments (as is common for computed properties), but it
+has two implicit arguments: ~$scope.firstName~ and
+~$scope.surname~. Therefore when ~$scope.firstName~ changes we can
+imagine our function being re-invoked with different arguments.
+
+Specifications should be *almost pure* because they may be invoked at
+unexpected times, or in unexpected ways. =ng-computed= makes no
+guarantees about how many times a specification is invoked (although
+an attempt is made to minimise the number of invocations).
+
+
+** Extraction
+
+When dealing with some types of data it's not possible to simply
+return a simple value type from a specification. In cases like
+asynchronous code it is often necessary to return some sort of a
+promise object which will be eventually resolved elsewhere. As a help
+for dealing with these cases, values returned by specifications
+undergo /extraction/ before being used.
+
+By default, extraction consists of either returning the value as-is,
+or returning the value delivered by a ~$q~ promise. This extraction
+process can be customised, as is discussed in [[Extractors]].
+
+An example of the default behaviour of ~$computed~:
+
+#+BEGIN_SRC js
+  $scope.url = "http://google.com";
+  $scope.$computed('requestResult', function() {
+      return $http.get($scope.$eval('url'));
+  });
+#+END_SRC
+
+Here the value of ~$scope.requestResult~ will be set to the result of
+fetching the URL specified in ~$scope.url~. As ~$scope.url~ changes,
+new requests will be made and ~$scope.requestResult~ will be updated
+accordingly.
+
+
+** Transformations
+
+There are some occasions when calculating a value is a little bit more
+involved than simply concatenating two strings looked up off the
+scope. Sometimes a computation for a value is a clear, sequenced,
+operation. In cases like this we can use /transformations/.
+
+If ~$computed~ is given an array of functions as a specification, it
+will run through each of them in sequence, calling each function with
+the result of the previous one in the chain, and finally setting the
+scope property to the result of the final function.
+
+#+BEGIN_SRC js
+  $scope.value = 10;
+  $scope.$computed('valuePlusThree', [function() {
+      return $scope.$eval('value');
+  }, function(x) {
+      return x+2;
+  }, function(x) {
+      return x+1;
+  }]);
+#+END_SRC
+
+Here ~$scope.valuePlusThree~ is set to ~13~, and will continue to
+update as ~value~ is updated. This example doesn't do anything that
+we couldn't have done in one function, however. There's no reason why
+we couldn't have used ~$scope.$eval('value') + 3~, so transformations
+provide us with no benefit here.
+
+Transformations do provide us with two advantages over simply calling
+and composing functions, though:
+
+1. Each function in a transformation has dependencies tracked
+   separately
+
+   This means that when a value changes, only the functions from that
+   point down are re-evaluated (and even then, only if the preceding
+   values have changed).
+
+   #+BEGIN_SRC js
+     $scope.a = 3;
+     $scope.b = 5;
+     $scope.c = 23;
+     $scope.$computed('sumIsEven', [function() {
+         return $scope.$eval('a') % 2; /* 1 */
+     }, function(prev) {
+         return (prev + $scope.$eval('b')) % 2; /* 2 */
+     }, function(prev) {
+         return (prev + $scope.$eval('c')) % 2; /* 3 */
+     }, function(val) {
+         return val == 0; /* 4 */
+     }]);
+   #+END_SRC
+
+   In this case, ~$scope.sumIsEven~ will be set to true if the
+   properties ~a~, ~b~ and ~c~ on ~$scope~ sum together to be an even
+   number, and false otherwise. When any of ~a~, ~b~ or ~c~ chpfange
+   then their step of the function is re-run. If the value has changed
+   then the next step of the chain is invoked, and so on.
+
+   If ~$scope.a~ were to be set to ~5~, the line marked as =1= would be
+   re-run, but ~$scope.a~ would still be odd, and thus no further
+   processing would take place.
+
+   If ~$scope.b~ were to be set to ~6~ the line marked as =2= would be
+   re-run, followed by =3=, then =4=. At the completion of line =4=
+   ~$scope.sumIsEven~ would be set to ~false~.
+
+   This automatic tracking and re-invocation of dependencies for
+   separate steps in a computation can give significant performance
+   benefits in some circumstances.
+
+2. Each result in a transformation is extracted before being passed
+   to the following function
+
+   This means you can chain together asynchronous computations in a
+   natural way:
+
+   #+BEGIN_SRC js
+     $scope.url = "http://google.com";
+     $scope.$computed('sumIsEven', [function() {
+         return $http.get($scope.$eval('url'));
+     }, function(response) {
+         return (response.data || "").toUpperCase(); // always shouting
+     }]);
+   #+END_SRC
+
+Combining these two points can allow for complex calculations and
+logic to be captured within a series of transformations while
+=ng-computed= does all the work of making sure each step is re-run at
+an appropriate time.
+
+
+* Custom behaviour
+
+** Watches
+
+By default, ~$trackedEval~ tracks all dependencies as *deep equality*
 watches. This can be quite inefficient, especially for dependencies
-on large objects, so ~ng-computed~ provides two tools to help:
+on large objects, so =ng-computed= provides two tools to help:
 
-1. =$watch= binding
+1. ~$watch~ binding
 
-   Shipped along with ~ng-computed~ is a service called
-   =$batchedWatch= which is a drop-in replacement for =Scope.$watch=.
-   =$batchedWatch= can be used as =$watch= on the =Scope= prototype,
+   Shipped along with =ng-computed= is a service called
+   ~$batchedWatch~ which is a drop-in replacement for ~Scope.$watch~.
+   ~$batchedWatch~ can be used as ~$watch~ on the ~Scope~ prototype,
    or on any individual scope, and will batch together separate watch
    functions on the same expression. This means that multiple deep
-   watches on the same large object will incur only one =angular.copy=
-   / =angular.equals= per change.
+   watches on the same large object will incur only one ~angular.copy~
+   / ~angular.equals~ per change.
 
    #+BEGIN_SRC js
      angular.module('app', ['ngComputed', 'ng'])
@@ -136,15 +319,15 @@ on large objects, so ~ng-computed~ provides two tools to help:
          });
    #+END_SRC
 
-2. =$eval{Reference,Equal,Collection}=
+2. ~$eval{Reference,Equal,Collection}~
 
-   The =$trackedEval= service is not just a simple function. There
-   are three variations of =$trackedEval= which each track the
+   The ~$trackedEval~ service is not just a simple function. There
+   are three variations of ~$trackedEval~ which each track the
    dependency as one of the varieties of watch:
 
-   * =$evalReference=, as a reference watch
-   * =$evalEqual=, as a deep equality watch
-   * =$evalCollection=, as a collection watch
+   * ~$evalReference~, as a reference watch
+   * ~$evalEqual~, as a deep equality watch
+   * ~$evalCollection~, as a collection watch
 
    These can be placed on a scope and used as normal:
 
@@ -158,7 +341,7 @@ on large objects, so ~ng-computed~ provides two tools to help:
          });
    #+END_SRC
 
-   By default, =$trackedEval= is the =$evalEqual= function, but it
+   By default, ~$trackedEval~ is the ~$evalEqual~ function, but it
    can be configured using AngularJS's configuration mechanism:
 
    #+BEGIN_SRC js
@@ -169,27 +352,27 @@ on large objects, so ~ng-computed~ provides two tools to help:
    #+END_SRC
 
 
-*** Extractors
+** Extractors
 
-Often when a value is returned for a =$computed= property there is
+Often when a value is returned for a ~$computed~ property there is
 some more work to be done: the value needs to be /extracted/ from some
 sort of context. This may be from a asynchronous construct, such as a
 promise, or from some other wrapper structure of your own devising. In
-order to allow for easy use of such values, ~ng-computed~ has a
+order to allow for easy use of such values, =ng-computed= has a
 concept of an /extractor/.
 
 An extractor is a function which is called to retrieve a value from a
-container. The function is given the value returned to =$computed= and
+container. The function is given the value returned to ~$computed~ and
 a callback into which to deliver the value. The callback may be called
 as many times as desired, and each time it is called it will continue
-the evaluation of the =$computed= value (this may be simply setting it
+the evaluation of the ~$computed~ value (this may be simply setting it
 on the scope, or may result in further computation [see
 [[Transformations]] for more details]).
 
 
-**** Default configuration
+*** Default configuration
 
-By default, =$computed= will extract a value from a =$q= promise if
+By default, ~$computed~ will extract a value from a ~$q~ promise if
 one is returned from the computed function.
 
 #+BEGIN_SRC js
@@ -214,17 +397,17 @@ specify the default extractor:
       }]);
 #+END_SRC
 
-This does not need to be done, however, as ~ng-computed~ will use
+This does not need to be done, however, as =ng-computed= will use
 this extractor if no other extractor is specified.
 
 
-**** Custom configuration
+*** Custom configuration
 
 One possible form of an extractor will attempt to extract values from
 "thunks". A thunk can be modelled as a function with zero arguments,
 which must be invoked to retrieve the value it contains.
 
-An extractor which dereferences thunks for =$computed= properties can
+An extractor which dereferences thunks for ~$computed~ properties can
 be easily implemented:
 
 #+BEGIN_SRC js
@@ -245,7 +428,7 @@ be easily implemented:
 #+END_SRC
 
 If our application is configured with this extractor then the
-following =$computed= property will be set to the value =10=.
+following ~$computed~ property will be set to the value ~10~.
 
 #+BEGIN_SRC js
   $scope.$computed('value', function() {
@@ -254,7 +437,7 @@ following =$computed= property will be set to the value =10=.
 #+END_SRC
 
 
-**** Asynchronous extractors
+*** Asynchronous extractors
 
 Asynchronous extractors have a few behaviours which may be unexpected,
 and may have unintended consequences. These should be taken into
@@ -262,11 +445,11 @@ account when writing extractors for asynchronous results.
 
 1. It is the extractor's responsibility to ensure that *any changes
    are processed after extraction*. The extractor may assume that it
-   will have been invoked during the =$apply= or =$digest= phase.
+   will have been invoked during the ~$apply~ or ~$digest~ phase.
 
-   Essentially this means that whenever you are invoking =callback=
+   Essentially this means that whenever you are invoking ~callback~
    asynchronously you must ensure that it is run within a
-   =$rootScope.$apply=, or similar:
+   ~$rootScope.$apply~, or similar:
 
    #+BEGIN_SRC js
      $rootScope.$apply(function() {
@@ -275,11 +458,11 @@ account when writing extractors for asynchronous results.
    #+END_SRC
 
    This is usually not a problem when using AngularJS services (such
-   as =$q= or =$timeout=), but when using third-party promises or
+   as ~$q~ or ~$timeout~), but when using third-party promises or
    other callback mechanisms it can become an issue.
 
-2. The =callback= provided to extractors is only valid until the
-   function calculating =value= is invoked again. If the =callback=
+2. The ~callback~ provided to extractors is only valid until the
+   function calculating ~value~ is invoked again. If the ~callback~
    is invoked after that time then it will have no effect.
 
    The intention behind this decision is to avoid the case where an
@@ -313,43 +496,39 @@ account when writing extractors for asynchronous results.
          deferredB.resolve(100);
      });
      
-     // Awesome! Now $scope.extractedValue == 100
+     // Awesome! Now $scope.extractedValue ~~ 100
      
      $scope.$apply(function() {
          deferredA.resolve(0);
      });
      
-     // Uh oh, now $scope.extractedValue == 0
+     // Uh oh, now $scope.extractedValue ~~ 0
      // unless we've invalidated the old callback
    #+END_SRC
 
 
-*** Transformations
+
+* Debugging
 
 TODO
 
 
-** Debugging
+* Internals
 
 TODO
 
 
-** Internals
+* Comparison to pure AngularJS
 
-TODO
-
-
-** Comparison to pure AngularJS
-
-In order to compare the ~ng-computed~ approach with vanilla AngularJS,
+In order to compare the =ng-computed= approach with vanilla AngularJS,
 let's build a simple application.
 
-For this example we're going to be leveraging ~ng-computed~'s
+For this example we're going to be leveraging =ng-computed='s
 automatic promise unwrapping and transformation functions to
 demonstrate a simple and easily understood implementation of a short
 specification.
 
-*** Specification
+** Specification
 
 Our application will be a little toy application to display a file and
 filter the lines which are shown. The user will be able to do five
@@ -396,10 +575,10 @@ We're going to be working with a DOM that looks like this:
 #+END_SRC
 
 
-*** Using pure AngularJS
+** Using pure AngularJS
 
 To give some idea of how this could look, let's start by implementing
-our specification in pure AngularJS. No ~ng-computed~ stuff here!
+our specification in pure AngularJS. No =ng-computed= stuff here!
 
 #+BEGIN_SRC js
   module.controller("PureController", function($scope, $http) {
@@ -450,20 +629,20 @@ our specification in pure AngularJS. No ~ng-computed~ stuff here!
 #+END_SRC
 
 This implements our specification, but it's not really pretty. All the
-processing takes place in the =recalculateMatches= function, which
+processing takes place in the ~recalculateMatches~ function, which
 might have to do a bit more work than necessary because it doesn't
 know which value has been updated. In particular, changing the value
-of =$scope.outputCase= would require =recalculateMatches= to reprocess
+of ~$scope.outputCase~ would require ~recalculateMatches~ to reprocess
 the entire file from scratch.
 
 In this case the cost of processing is relatively small, but that
 extra work is being performed nonetheless.
 
 
-*** Using ~ng-computed~
+** Using =ng-computed=
 
 Now, let's have a look at what an implementation might look like with
-=ng-computed=.
+~ng-computed~.
 
 #+BEGIN_SRC js
   module.controller("ComputedController", function($scope, $http, $computed, $trackedEval) {
@@ -499,14 +678,14 @@ Now, let's have a look at what an implementation might look like with
 This has a few advantages over the pure AngularJS implementation:
 
 - The only values which are stored on the scope are the values being
-  used in the actual view. In particular, =response= and =lines= are
-  both kept out of the scope (in the pure AngularJS the =lines= are
+  used in the actual view. In particular, ~response~ and ~lines~ are
+  both kept out of the scope (in the pure AngularJS the ~lines~ are
   stored on the scope as a temporary storage location)
 - Dependencies are tracked automatically, so the function processing
-  the =$http= response doesn't need to know that =fixCase= uses
-  =$scope.caseSensitive= internally; this also avoids needing to
+  the ~$http~ response doesn't need to know that ~fixCase~ uses
+  ~$scope.caseSensitive~ internally; this also avoids needing to
   explicitly register the watches separately to the computation itself
-- Each of the functions given to =$computed= is only run if its
+- Each of the functions given to ~$computed~ is only run if its
   dependencies (or arguments) have changed, meaning we can avoid
   reprocessing the entire file if we just want to change the case of
   the output
@@ -517,10 +696,10 @@ This has a few advantages over the pure AngularJS implementation:
 A pure AngularJS implementation could be written to fix some of these
 issues, but particularly the point of automatic dependency management
 is difficult to solve without an implementation similar to
-~ng-computed~. As a practical note, writing this example with
-~ng-computed~ was relatively simple and had few errors, whereas
+=ng-computed=. As a practical note, writing this example with
+=ng-computed= was relatively simple and had few errors, whereas
 writing it in pure AngularJS resulted in a number of minor mistakes
 which had to be corrected (forgetting to register watches, in
 particular).
 
-This example can be seen in practice at [[https://raw.githack.com/ClearboxSystems/ng-computed/master/examples/comparison/index.html][/examples/comparison/index.html]].
+This example can be seen in practice at [[https://raw.githack.com/ClearboxSystems/ng-computed/master/examples/comparison/index.html][/examples/comparison/index.html]]
