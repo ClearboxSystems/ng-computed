@@ -1,0 +1,126 @@
+* ng-computed
+
+Computed properties for [[http://angularjs.org/][AngularJS]], à la [[http://knockoutjs.com/][Knockout JS]].
+
+: bower install ng-computed
+
+
+** Motivation
+
+When writing applications within the AngularJS framework, it is often
+necessary to compute values for scope properties which are dependent
+on other scope values. AngularJS provides a basic mechanism to keep
+these values up to date (=$watch=, and its variants), but these can
+often become unwieldy as your dependencies become more complex or
+dynamic.
+
+This is the problem that ~ng-computed~ is aiming to solve. Within a
+=$computed= value's body it is not necessary to explicitly declare
+what values you depend on, or when this value should be
+re-evaluated. ~ng-computed~ will take care of all the details so you
+can focus on your actual computation.
+
+If you're not convinced that this is such a great idea, take a look at
+[[Hello%20World%20Example][the example below]]. If you're interested in how everything works, jump
+down to [[Internals][our description of the internals]]. If you're just interested in
+using ~ng-computed~ then [[Installation][is probably the best place to start]].
+
+
+** Hello World Example
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .controller('HelloWorldController', function($scope, $computed, $trackedEval) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+          $scope.hello = "hello";
+          $scope.world = "world";
+          $scope.$computed("helloWorld", function() {
+              return $scope.$eval("hello") + " " + $scope.$eval("world") + "!";
+          });
+      });
+#+END_SRC
+
+=$scope.helloWorld= will be kept updated by the usual AngularJS watch
+mechanisms, and it will be recalculated whenever the values of
+=$scope.hello= or =$scope.world= change.
+
+For a more complete example, see [[Comparison to pure AngularJS][the comparative example below]].
+
+
+** Installation
+
+There are a few options for how to set up =ng-computed= in your
+project.
+
+*** Globally available
+
+We can add the =$computed= and =$trackedEval= methods at the
+top-level of our application, on the =Scope= prototype. This makes
+them readily available to any scopes, including isolate scopes. When
+placing values on the =Scope= prototype we have another decision to
+make: do we want to replace =Scope.$eval=.
+
+**** Overriding =Scope.$eval=
+
+The =$trackedEval= service gives you a drop-in replacement for
+=Scope.$eval=, so we can replace =Scope.$eval= with =$trackedEval=
+without breaking anything.
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .run(function($rootScope, $trackedEval, $computed) {
+          // we have to use the prototype, otherwise isolate scopes miss out
+          angular.extend($rootScope.constructor.prototype, {
+              $eval: $trackedEval,
+              $computed: $computed
+          });
+      });
+#+END_SRC
+
+**** Not overriding =Scope.$eval=
+
+If you don't want to override =Scope.$eval= then you can choose a
+different name instead. ~ng-computed~ makes no assumptions about what
+names you use in your application.
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .run(function($rootScope, $trackedEval, $computed) {
+          // we have to use the prototype, otherwise isolate scopes miss out
+          angular.extend($rootScope.constructor.prototype, {
+              getExpressionValue: $trackedEval,
+              computedProperty: $computed
+          });
+      });
+#+END_SRC
+
+*** Locally available
+
+If you don't want to add =$computed= or =$trackedEval= to the =Scope=
+prototype then you can still use ~ng-computed~. Within any scope you
+can add =$computed= and =$trackedEval=, using any names you desire,
+and they will function normally.
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .controller('ExampleController', function($scope, $trackedEval, $computed) {
+          $scope.$eval = $trackedEval;
+          $scope.$computed = $computed;
+      });
+#+END_SRC
+
+
+** Custom behaviour
+
+*** Watches
+
+*** Transformations
+
+*** Extractors
+
+
+** Advanced
+
+*** Internals
+
+** Comparison to pure AngularJS
