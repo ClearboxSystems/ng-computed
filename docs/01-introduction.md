@@ -160,7 +160,6 @@ module.controller("ComputedController", function($scope, $http, $computed, $trac
         $scope.outputCase = "default";
         $scope.stop = $scope.$computed("matchingLines", [function() {
             var url = $scope.$eval("url");
-            console.log(url);
             if (!url) return {data: ""};
             return $http.get(url);
         }, function(response) {

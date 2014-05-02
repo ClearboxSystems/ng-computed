@@ -12,7 +12,6 @@ angular.module("app", ["ngComputed", "ng"])
         $scope.outputCase = "default";
         $scope.stop = $scope.$computed("matchingLines", [function() {
             var url = $scope.$eval("url");
-            console.log(url);
             if (!url) return {data: ""};
             return $http.get(url);
         }, function(response) {
@@ -27,7 +26,7 @@ angular.module("app", ["ngComputed", "ng"])
             case "upper": return lines.map(function(line){return line.toLocaleUpperCase();});
             default: return lines;
             }
-        }]); // lines 4-30 : 26 lines, 1 white
+        }]); // lines 4-29 : 25 lines, 1 white
     })
     .controller("PureAngularController", function($scope, $http) {
         var fixCase = function(string) {
@@ -72,5 +71,5 @@ angular.module("app", ["ngComputed", "ng"])
             watches.forEach(function(deregister) {
                 deregister();
             });
-        }; // lines 33-75 : 42 lines, 2 white
+        }; // lines 32-74 : 42 lines, 2 white
     });
