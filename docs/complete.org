@@ -332,10 +332,10 @@ account when writing extractors for asynchronous results.
 
 ** Comparison to pure AngularJS
 
-In order to compare the `ng-computed` approach with vanilla AngularJS,
+In order to compare the ~ng-computed~ approach with vanilla AngularJS,
 let's build a simple application.
 
-For this example we're going to be leveraging `ng-computed`'s
+For this example we're going to be leveraging ~ng-computed~'s
 automatic promise unwrapping and transformation functions to
 demonstrate a simple and easily understood implementation of a short
 specification.
@@ -390,7 +390,7 @@ We're going to be working with a DOM that looks like this:
 *** Using pure AngularJS
 
 To give some idea of how this could look, let's start by implementing
-our specification in pure AngularJS. No `ng-computed` stuff here!
+our specification in pure AngularJS. No ~ng-computed~ stuff here!
 
 #+BEGIN_SRC js
   module.controller("PureController", function($scope, $http) {
