@@ -54,7 +54,7 @@ For a more complete example, see [[Comparison to pure AngularJS][the comparative
 
 There are a few options for how to set up =ng-computed= in your
 project. Throughout the documentation we're assuming you've opted for
-/Globally Available/ and /Overriding ~Scope.$eval~ /.
+/Globally Available/ and /Overriding Scope.$eval/.
 
 ** Globally available
 
@@ -302,7 +302,7 @@ By default, ~$trackedEval~ tracks all dependencies as *deep equality*
 watches. This can be quite inefficient, especially for dependencies
 on large objects, so =ng-computed= provides two tools to help:
 
-1. ~$watch~ binding
+1. ~$watch~ batching
 
    Shipped along with =ng-computed= is a service called
    ~$batchedWatch~ which is a drop-in replacement for ~Scope.$watch~.
