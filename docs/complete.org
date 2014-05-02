@@ -326,8 +326,17 @@ account when writing extractors for asynchronous results.
 
 *** Transformations
 
+TODO
+
+
+** Debugging
+
+TODO
+
 
 ** Internals
+
+TODO
 
 
 ** Comparison to pure AngularJS
