@@ -23,7 +23,8 @@ can focus on your actual computation.
 If you're not convinced that this is such a great idea, take a look at
 [[Hello%20World%20Example][the example below]]. If you're interested in how everything works, jump
 down to [[Internals][our description of the internals]]. If you're just interested in
-using ~ng-computed~ then [[Installation][is probably the best place to start]].
+using ~ng-computed~ then [[Installation][installation is probably the best place to
+start]].
 
 
 ** Hello World Example
@@ -114,9 +115,64 @@ and they will function normally.
 
 *** Watches
 
-*** Transformations
+By default, =$trackedEval= tracks all dependencies as *deep equality*
+watches. This can be quite inefficient, especially for dependencies
+on large objects, so =ng-computed= provides two tools to help:
+
+1. =$watch= binding
+
+   Shipped along with ~ng-computed~ is a service called
+   =$batchedWatch= which is a drop-in replacement for =Scope.$watch=.
+   =$batchedWatch= can be used as =$watch= on the =Scope= prototype,
+   or on any individual scope, and will batch together separate watch
+   functions on the same expression. This means that multiple deep
+   watches on the same large object will incur only one =angular.copy=
+   / =angular.equals= per change.
+
+   #+BEGIN_SRC js
+     angular.module('app', ['ngComputed', 'ng'])
+         .run(function($rootScope, $batchedWatch) {
+             $rootScope.constructor.prototype.$watch = $batchedWatch;
+         });
+   #+END_SRC
+
+2. =$eval{Reference,Equal,Collection}=
+
+   The =$trackedEval= service is not just a simple function. There
+   are three variations of =$trackedEval= which each track the
+   dependency as one of the varieties of watch:
+
+   * =$evalReference=, as a reference watch
+   * =$evalEqual=, as a deep equality watch
+   * =$evalCollection=, as a collection watch
+
+   These can be placed on a scope and used as normal:
+
+   #+BEGIN_SRC js
+     angular.module('app', ['ngComputed', 'ng'])
+         .controller('Example', function($scope, $trackedEval) {
+             $scope.$evalReference = $trackedEval.$evalReference;
+             $scope.$computed('computedValue', function() {
+                 return $scope.$evalReference('shallowWatchedValue');
+             });
+         });
+   #+END_SRC
+
+   By default, =$trackedEval= is the =$evalEqual= function, but it
+   can be configured using AngularJS's configuration mechanism:
+
+   #+BEGIN_SRC js
+     angular.module('app', ['ngComputed', 'ng'])
+         .config(['$trackedEvalProvider', function($trackedEvalProvider) {
+             $trackedEvalProvider.setDefaultWatchType('equal' /* or 'reference' or 'collection'*/);
+         }]);
+   #+END_SRC
+
 
 *** Extractors
+
+
+*** Transformations
 
 
 ** Advanced
