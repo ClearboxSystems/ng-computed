@@ -50,7 +50,7 @@ For a more complete example, see [[Comparison to pure AngularJS][the comparative
 
 ** Installation
 
-There are a few options for how to set up =ng-computed= in your
+There are a few options for how to set up ~ng-computed~ in your
 project.
 
 *** Globally available
@@ -117,7 +117,7 @@ and they will function normally.
 
 By default, =$trackedEval= tracks all dependencies as *deep equality*
 watches. This can be quite inefficient, especially for dependencies
-on large objects, so =ng-computed= provides two tools to help:
+on large objects, so ~ng-computed~ provides two tools to help:
 
 1. =$watch= binding
 
@@ -171,12 +171,163 @@ on large objects, so =ng-computed= provides two tools to help:
 
 *** Extractors
 
+Often when a value is returned for a =$computed= property there is
+some more work to be done: the value needs to be /extracted/ from some
+sort of context. This may be from a asynchronous construct, such as a
+promise, or from some other wrapper structure of your own devising. In
+order to allow for easy use of such values, ~ng-computed~ has a
+concept of an /extractor/.
+
+An extractor is a function which is called to retrieve a value from a
+container. The function is given the value returned to =$computed= and
+a callback into which to deliver the value. The callback may be called
+as many times as desired, and each time it is called it will continue
+the evaluation of the =$computed= value (this may be simply setting it
+on the scope, or may result in further computation [see
+[[Transformations]] for more details]).
+
+
+**** Asynchronous extractors
+
+Asynchronous extractors have a few behaviours which may be unexpected,
+and may have unintended consequences. These should be taken into
+account when writing extractors for asynchronous results.
+
+1. It is the extractor's responsibility to ensure that *any changes
+   are =$digest=\ed after extraction*. The extractor may assume that
+   it will have been invoked during the =$apply= or =$digest= phase.
+
+   Essentially this means that whenever you are invoking =callback=
+   asynchronously you must ensure that it is run within a
+   =$rootScope.$apply=, or similar:
+
+   #+BEGIN_SRC js
+     $rootScope.$apply(function() {
+         callback(value);
+     });
+   #+END_SRC
+
+   This is usually not a problem when using AngularJS services (such
+   as =$q= or =$timeout=), but when using third-party promises or
+   other callback mechanisms it can become an issue.
+
+2. The =callback= provided to extractors is only valid until the
+   function calculating =value= is invoked again. If the =callback=
+   is invoked after that time then it will have no effect.
+
+   The intention behind this decision is to avoid the case where an
+   earlier, but now irrelevant, promise being resolved overwrites a
+   newer, relevant, promise's value. An example will hopefully make
+   this clear:
+
+   #+BEGIN_SRC js
+     var deferredA = $q.defer(), deferredB = $q.defer();
+     
+     $scope.$apply(function() {
+         $scope.useA = true;
+         $scope.$computed('extractedValue', function() {
+             if ($scope.$eval('useA'))
+                 return deferredA.promise;
+             else
+                 return deferredB.promise;
+         });
+     });
+     
+     // we're now waiting for deferredA.promise
+     
+     $scope.$apply(function() {
+         $scope.useB = false;
+     });
+     
+     // now we've changed, and we want $scope.extractedValue
+     // to take deferredB.promise's value
+     
+     $scope.$apply(function() {
+         deferredB.resolve(100);
+     });
+     
+     // Awesome! Now $scope.extractedValue == 100
+     
+     $scope.$apply(function() {
+         deferredA.resolve(0);
+     });
+     
+     // Uh oh, now $scope.extractedValue == 0
+     // unless we've invalidated the old callback
+   #+END_SRC
+
+
+**** Default configuration
+
+By default, =$computed= will extract a value from a =$q= promise if
+one is returned from the computed function.
+
+#+BEGIN_SRC js
+  $scope.$computed('extracted', function() {
+      var deferred = $q.defer();
+      deferred.resolve('a value'); // could happen later
+      return deferred.promise;
+  });
+#+END_SRC
+
+To serve as an example for custom extractors, this is how one would
+specify the default extractor:
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .config(['$computedProvider', function($computedProvider) {
+          $computedProvider.provideExtractor(['$q', function($q) {
+              return function(value, callback) {
+                  $q.when(value).then(callback, callback);
+              };
+          }]);
+      }]);
+#+END_SRC
+
+This does not need to be done, however, as ~ng-computed~ will use
+this extractor if no other extractor is specified.
+
+
+**** Custom configuration
+
+One possible form of an extractor will attempt to extract values from
+"thunks". A thunk can be modelled as a function with zero arguments,
+which must be invoked to retrieve the value it contains.
+
+An extractor which dereferences thunks for =$computed= properties can
+be easily implemented:
+
+#+BEGIN_SRC js
+  angular.module('app', ['ngComputed', 'ng'])
+      .config(['$computedProvider', function($computedProvider) {
+          $computedProvider.provideExtractor([function() {
+              return function(value, callback) {
+                  // because these are each called synchronously,
+                  // they are already in a $digest cycle
+                  if (angular.isFunction(value)) {
+                      callback(value());
+                  } else {
+                      callback(value);
+                  }
+              };
+          }]);
+      }]);
+#+END_SRC
+
+If our application is configured with this extractor then the
+following =$computed= property will be set to the value =10=.
+
+#+BEGIN_SRC js
+  $scope.$computed('value', function() {
+      return function(){return 10;};
+  });
+#+END_SRC
+
 
 *** Transformations
 
 
-** Advanced
+** Internals
 
-*** Internals
 
 ** Comparison to pure AngularJS
