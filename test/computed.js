@@ -400,6 +400,35 @@ describe('$computed', function() {
                 expect(destroyed).toBe(true);
             });
 
+            it('shouldn\'t use old promise if a new one is returned before resolution', function() {
+                var def1 = q.defer(), def2 = q.defer();
+                scope.$apply(function() {
+                    scope.returnFirst = true;
+                    scope.$computed('computed', function() {
+                        return (scope.$eval('returnFirst') ? def1.promise : def2.promise);
+                    });
+                });
+
+                scope.$apply(function() {
+                    scope.returnFirst = false;
+                });
+                expect(scope.computed).toBeUndefined();
+
+                // now both promises have been returned for scope.computed,
+                // but def1.promise has been superceded by def2.promise
+
+                scope.$apply(function() {
+                    def2.resolve(100);
+                });
+                expect(scope.computed).toBe(100);
+
+                scope.$apply(function() {
+                    def1.resolve(0); // this should be ignored now
+                });
+                expect(scope.computed).toBe(100);
+            });
+
+
             var pairsToObject = function() {
                 var result = {};
                 for (var i = 0, len = arguments.length; i < len; ++i) {

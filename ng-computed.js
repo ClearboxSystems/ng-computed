@@ -398,12 +398,18 @@ angular.module('ngComputed')
                     dependencyGraph[debugName] = {};
                 var updateCount = 0;
                 var incUpdates = function(){updateCount++;};
+                var runCallback = function(atUpdate) {
+                    return function() {
+                        if (updateCount == atUpdate) // callbacks are only valid if there are no more updates since
+                            callback.apply(this, arguments);
+                    };
+                };
                 var run = function() {
                     var result = $trackedEval.trackDependencies.call(self, fn, args);
                     if (result.thrown === undefined) {
-                        extractor(result.value, callback);
+                        extractor(result.value, runCallback(updateCount));
                     } else {
-                        extractor(undefined, callback);
+                        extractor(undefined, runCallback(updateCount));
                         $exceptionHandler(result.thrown);
                     }
                     deps = fixWatches(deps, result.dependencies, incUpdates, debugName);
