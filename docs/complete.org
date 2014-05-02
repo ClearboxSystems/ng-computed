@@ -194,8 +194,8 @@ and may have unintended consequences. These should be taken into
 account when writing extractors for asynchronous results.
 
 1. It is the extractor's responsibility to ensure that *any changes
-   are =$digest=\ed after extraction*. The extractor may assume that
-   it will have been invoked during the =$apply= or =$digest= phase.
+   are processed after extraction*. The extractor may assume that it
+   will have been invoked during the =$apply= or =$digest= phase.
 
    Essentially this means that whenever you are invoking =callback=
    asynchronously you must ensure that it is run within a
