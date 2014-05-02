@@ -187,76 +187,6 @@ on the scope, or may result in further computation [see
 [[Transformations]] for more details]).
 
 
-**** Asynchronous extractors
-
-Asynchronous extractors have a few behaviours which may be unexpected,
-and may have unintended consequences. These should be taken into
-account when writing extractors for asynchronous results.
-
-1. It is the extractor's responsibility to ensure that *any changes
-   are processed after extraction*. The extractor may assume that it
-   will have been invoked during the =$apply= or =$digest= phase.
-
-   Essentially this means that whenever you are invoking =callback=
-   asynchronously you must ensure that it is run within a
-   =$rootScope.$apply=, or similar:
-
-   #+BEGIN_SRC js
-     $rootScope.$apply(function() {
-         callback(value);
-     });
-   #+END_SRC
-
-   This is usually not a problem when using AngularJS services (such
-   as =$q= or =$timeout=), but when using third-party promises or
-   other callback mechanisms it can become an issue.
-
-2. The =callback= provided to extractors is only valid until the
-   function calculating =value= is invoked again. If the =callback=
-   is invoked after that time then it will have no effect.
-
-   The intention behind this decision is to avoid the case where an
-   earlier, but now irrelevant, promise being resolved overwrites a
-   newer, relevant, promise's value. An example will hopefully make
-   this clear:
-
-   #+BEGIN_SRC js
-     var deferredA = $q.defer(), deferredB = $q.defer();
-     
-     $scope.$apply(function() {
-         $scope.useA = true;
-         $scope.$computed('extractedValue', function() {
-             if ($scope.$eval('useA'))
-                 return deferredA.promise;
-             else
-                 return deferredB.promise;
-         });
-     });
-     
-     // we're now waiting for deferredA.promise
-     
-     $scope.$apply(function() {
-         $scope.useB = false;
-     });
-     
-     // now we've changed, and we want $scope.extractedValue
-     // to take deferredB.promise's value
-     
-     $scope.$apply(function() {
-         deferredB.resolve(100);
-     });
-     
-     // Awesome! Now $scope.extractedValue == 100
-     
-     $scope.$apply(function() {
-         deferredA.resolve(0);
-     });
-     
-     // Uh oh, now $scope.extractedValue == 0
-     // unless we've invalidated the old callback
-   #+END_SRC
-
-
 **** Default configuration
 
 By default, =$computed= will extract a value from a =$q= promise if
@@ -322,6 +252,76 @@ following =$computed= property will be set to the value =10=.
       return function(){return 10;};
   });
 #+END_SRC
+
+
+**** Asynchronous extractors
+
+Asynchronous extractors have a few behaviours which may be unexpected,
+and may have unintended consequences. These should be taken into
+account when writing extractors for asynchronous results.
+
+1. It is the extractor's responsibility to ensure that *any changes
+   are processed after extraction*. The extractor may assume that it
+   will have been invoked during the =$apply= or =$digest= phase.
+
+   Essentially this means that whenever you are invoking =callback=
+   asynchronously you must ensure that it is run within a
+   =$rootScope.$apply=, or similar:
+
+   #+BEGIN_SRC js
+     $rootScope.$apply(function() {
+         callback(value);
+     });
+   #+END_SRC
+
+   This is usually not a problem when using AngularJS services (such
+   as =$q= or =$timeout=), but when using third-party promises or
+   other callback mechanisms it can become an issue.
+
+2. The =callback= provided to extractors is only valid until the
+   function calculating =value= is invoked again. If the =callback=
+   is invoked after that time then it will have no effect.
+
+   The intention behind this decision is to avoid the case where an
+   earlier, but now irrelevant, promise being resolved overwrites a
+   newer, relevant, promise's value. An example will hopefully make
+   this clear:
+
+   #+BEGIN_SRC js
+     var deferredA = $q.defer(), deferredB = $q.defer();
+     
+     $scope.$apply(function() {
+         $scope.useA = true;
+         $scope.$computed('extractedValue', function() {
+             if ($scope.$eval('useA'))
+                 return deferredA.promise;
+             else
+                 return deferredB.promise;
+         });
+     });
+     
+     // we're now waiting for deferredA.promise
+     
+     $scope.$apply(function() {
+         $scope.useA = false;
+     });
+     
+     // now we've changed, and we want $scope.extractedValue
+     // to take deferredB.promise's value
+     
+     $scope.$apply(function() {
+         deferredB.resolve(100);
+     });
+     
+     // Awesome! Now $scope.extractedValue == 100
+     
+     $scope.$apply(function() {
+         deferredA.resolve(0);
+     });
+     
+     // Uh oh, now $scope.extractedValue == 0
+     // unless we've invalidated the old callback
+   #+END_SRC
 
 
 *** Transformations
