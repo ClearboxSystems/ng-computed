@@ -39,15 +39,17 @@ angular.module('ngComputed')
                     if (key in lastResult) {
                         // this was already covered in the "older" loop
                     } else {
+                        // don't run updates if it's an initialisation watch, because we already have that value
+                        var onUpdate = function(a,b) { if (a !== b) updateFn(); };
                         // register the new dependency
                         result[key] = spec;
                         switch (spec.type) {
                         case "equal":
                         case "reference":
-                            spec.deregister = spec.scope.$watch(spec.expr, updateFn, spec.type == "equal");
+                            spec.deregister = spec.scope.$watch(spec.expr, onUpdate, spec.type == "equal");
                             break;
                         case "collection":
-                            spec.deregister = spec.scope.$watchCollection(spec.expr, updateFn);
+                            spec.deregister = spec.scope.$watchCollection(spec.expr, onUpdate);
                             break;
                         default:
                             console.error("Unknown watch type: ", spec.type, " Not tracking dependency on: ", spec.expr);

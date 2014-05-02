@@ -9,7 +9,8 @@ angular.module('ngComputed')
         var registerWatch = function(watchers, expr, deep, f) {
             var watchersForDepth = watchers[deep];
             var watchersForExpr = watchersForDepth[expr];
-            if (!watchersForExpr) {
+            var registerRealWatch = !watchersForExpr;
+            if (registerRealWatch) {
                 watchersForExpr = {
                     fns: {},
                     deregister: watch.call(this, expr, function(value, oldValue, scope) {
@@ -31,14 +32,18 @@ angular.module('ngComputed')
                 run: f,
                 hasRun: false
             };
-            var deregister = watch.call(this, expr, function(value, oldValue, scope) {
-                var fn = watchersForExpr.fns[id];
-                if (fn && !fn.hasRun) {
-                    fn.run.call(this, value, oldValue, scope);
-                    fn.hasRun = true;
-                }
-                deregister(); // only ever do the initialisation part of this
-            });
+            if (!registerRealWatch) {
+                // note the shallow watch: no sense incurring the copy when we don't care
+                // this watch will get fired once, then deregistered, so just do a shallow watch
+                var deregister = watch.call(this, expr, function(value, oldValue, scope) {
+                    var fn = watchersForExpr.fns[id];
+                    if (fn && !fn.hasRun) {
+                        fn.run.call(this, value, oldValue, scope);
+                        fn.hasRun = true;
+                    }
+                    deregister(); // only ever do the initialisation part of this
+                }, false);
+            }
             return id;
         };
 

@@ -244,7 +244,8 @@ angular.module('ngComputed')
         var registerWatch = function(watchers, expr, deep, f) {
             var watchersForDepth = watchers[deep];
             var watchersForExpr = watchersForDepth[expr];
-            if (!watchersForExpr) {
+            var registerRealWatch = !watchersForExpr;
+            if (registerRealWatch) {
                 watchersForExpr = {
                     fns: {},
                     deregister: watch.call(this, expr, function(value, oldValue, scope) {
@@ -266,14 +267,18 @@ angular.module('ngComputed')
                 run: f,
                 hasRun: false
             };
-            var deregister = watch.call(this, expr, function(value, oldValue, scope) {
-                var fn = watchersForExpr.fns[id];
-                if (fn && !fn.hasRun) {
-                    fn.run.call(this, value, oldValue, scope);
-                    fn.hasRun = true;
-                }
-                deregister(); // only ever do the initialisation part of this
-            });
+            if (!registerRealWatch) {
+                // note the shallow watch: no sense incurring the copy when we don't care
+                // this watch will get fired once, then deregistered, so just do a shallow watch
+                var deregister = watch.call(this, expr, function(value, oldValue, scope) {
+                    var fn = watchersForExpr.fns[id];
+                    if (fn && !fn.hasRun) {
+                        fn.run.call(this, value, oldValue, scope);
+                        fn.hasRun = true;
+                    }
+                    deregister(); // only ever do the initialisation part of this
+                }, false);
+            }
             return id;
         };
 
@@ -365,15 +370,17 @@ angular.module('ngComputed')
                     if (key in lastResult) {
                         // this was already covered in the "older" loop
                     } else {
+                        // don't run updates if it's an initialisation watch, because we already have that value
+                        var onUpdate = function(a,b) { if (a !== b) updateFn(); };
                         // register the new dependency
                         result[key] = spec;
                         switch (spec.type) {
                         case "equal":
                         case "reference":
-                            spec.deregister = spec.scope.$watch(spec.expr, updateFn, spec.type == "equal");
+                            spec.deregister = spec.scope.$watch(spec.expr, onUpdate, spec.type == "equal");
                             break;
                         case "collection":
-                            spec.deregister = spec.scope.$watchCollection(spec.expr, updateFn);
+                            spec.deregister = spec.scope.$watchCollection(spec.expr, onUpdate);
                             break;
                         default:
                             console.error("Unknown watch type: ", spec.type, " Not tracking dependency on: ", spec.expr);

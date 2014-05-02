@@ -43,6 +43,67 @@ describe('$computed', function() {
                 };
             }));
 
+            it('should only run ones on initialisation', function() {
+                var deregister, runs = 0;
+                scope.$apply(function() {
+                    scope.value = 0;
+                    deregister = scope.$computed('computedValue', function() {
+                        runs++;
+                        return scope.$eval('value');
+                    });
+                });
+                expect(runs).toBe(1);
+            });
+
+            it('should re-run $computed function on update', function() {
+                var deregister, runs = 0;
+                scope.$apply(function() {
+                    scope.value = 0;
+                    deregister = scope.$computed('computedValue', function() {
+                        runs++;
+                        return scope.$eval('value');
+                    });
+                });
+                expect(runs).toBe(1);
+
+                runs = 0;
+                scope.$apply(function() {
+                    scope.value = 1;
+                });
+                expect(runs).toBe(1);
+            });
+
+            it('should re-run $computed function only once on dependency change', function() {
+                var deregister, runs = 0;
+                scope.$apply(function() {
+                    scope.cond = false;
+                    scope.value = 0;
+                    deregister = scope.$computed('computedValue', function() {
+                        runs++; 
+                        return scope.$eval('cond') ? scope.$eval('value') : null;
+                    });
+                });
+                expect(runs).toBe(1);
+
+                runs = 0;
+                scope.$apply(function() {
+                    scope.value = 1;
+                });
+                expect(runs).toBe(0);
+
+                runs = 0;
+                scope.$apply(function() {
+                    scope.cond = true;
+                });
+                expect(runs).toBe(1);
+
+                runs = 0;
+                scope.$apply(function() {
+                    scope.value = 2;
+                });
+                expect(runs).toBe(1);
+            });
+
             it('should run transformation functions in sequence', function() {
                 var inc = function(x){return x+1;};
                 var deregister;
@@ -84,9 +145,9 @@ describe('$computed', function() {
                     }]);
                 });
                 expect(scope.value).toBe(13);
-                expect(topRuns).toBe(2);
-                expect(aRuns).toBe(2);
-                expect(bRuns).toBe(2);
+                expect(topRuns).toBe(1);
+                expect(aRuns).toBe(1);
+                expect(bRuns).toBe(1);
 
                 topRuns = 0, aRuns = 0, bRuns = 0;
                 scope.$apply(function() {
@@ -163,7 +224,7 @@ describe('$computed', function() {
                             return scope.$eval("x") + 1;
                         });
                     });
-                    expect(extractorRunCount).toBe(2);
+                    expect(extractorRunCount).toBe(1);
                 });
 
                 it("should run promise extractors in a $digest", function() {
@@ -187,11 +248,11 @@ describe('$computed', function() {
                             return scope.$eval("b");
                         }]);
                     });
-                    expect(extractorRunCount).toBe(4);
+                    expect(extractorRunCount).toBe(2);
                     scope.$apply(function() {
                         scope.a = 10;
                     });
-                    expect(extractorRunCount).toBe(6);
+                    expect(extractorRunCount).toBe(4);
                 });
 
                 it("should run extractors on transformations from promises in a $digest", function() {
