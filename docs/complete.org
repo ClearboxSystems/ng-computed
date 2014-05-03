@@ -281,7 +281,7 @@ and composing functions, though:
 
    #+BEGIN_SRC js
      $scope.url = "http://google.com";
-     $scope.$computed('sumIsEven', [function() {
+     $scope.$computed('uppercasePageContents', [function() {
          return $http.get($scope.$eval('url'));
      }, function(response) {
          return (response.data || "").toUpperCase(); // always shouting
