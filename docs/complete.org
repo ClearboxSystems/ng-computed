@@ -371,7 +371,7 @@ a callback into which to deliver the value. The callback may be called
 as many times as desired, and each time it is called it will continue
 the evaluation of the ~$computed~ value (this may be simply setting it
 on the scope, or may result in further computation [see
-[[Transformations]] for more details]).
+[[#transformations][Transformations]] for more details]).
 
 
 *** Default configuration
