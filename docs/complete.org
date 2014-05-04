@@ -23,12 +23,13 @@ re-evaluated. =ng-computed= will take care of all the details so you
 can focus on your actual computation.
 
 If you're not convinced that this is such a great idea, take a look at
-[[Hello%20World%20Example][the example below]]. If you're interested in how everything works, jump
-down to [[Internals][our description of the internals]]. If you're just interested in
-using =ng-computed= then [[Installation][installation is probably the best place to
+[[#hello-world-example][the example below]]. If you're interested in how everything works, jump
+down to [[#internals][our description of the internals]]. If you're just interested in
+using =ng-computed= then [[#installation][installation is probably the best place to
 start]].
 
 
+#+NAME: #hello-world-example
 * Hello World Example
 
 #+BEGIN_SRC js
@@ -47,9 +48,10 @@ start]].
 mechanisms, and it will be recalculated whenever the values of
 ~$scope.hello~ or ~$scope.world~ change.
 
-For a more complete example, see [[Comparison to pure AngularJS][the comparative example below]].
+For a more complete example, see [[#comparison-to-pure-angularjs][the comparative example below]].
 
 
+#+NAME: #installation
 * Installation
 
 There are a few options for how to set up =ng-computed= in your
@@ -121,7 +123,7 @@ and they will function normally.
 Using =ng-computed= is quite simple. When you wish to create a
 computed property, call ~$computed~ with the property's name (as a
 string) and a specification of how to calculate the value (usually a
-function, but see the section on [[Transformations]] below). Based on the
+function, but see the section on [[#transformations][Transformations]] below). Based on the
 specification, then, the value for the expressions is set.
 
 Here is an example of a ~$computed~ property being set to a constant
@@ -184,7 +186,7 @@ undergo /extraction/ before being used.
 
 By default, extraction consists of either returning the value as-is,
 or returning the value delivered by a ~$q~ promise. This extraction
-process can be customised, as is discussed in [[Extractors]].
+process can be customised, as is discussed in [[#extractors][Extractors]].
 
 An example of the default behaviour of ~$computed~:
 
@@ -201,6 +203,7 @@ new requests will be made and ~$scope.requestResult~ will be updated
 accordingly.
 
 
+#+NAME: #transformations
 ** Transformations
 
 There are some occasions when calculating a value is a little bit more
@@ -352,6 +355,7 @@ on large objects, so =ng-computed= provides two tools to help:
    #+END_SRC
 
 
+#+NAME: #extractors
 ** Extractors
 
 Often when a value is returned for a ~$computed~ property there is
@@ -507,17 +511,20 @@ account when writing extractors for asynchronous results.
    #+END_SRC
 
 
+#+NAME: #debugging
 
 * Debugging
 
 TODO
 
 
+#+NAME: #internals
 * Internals
 
 TODO
 
 
+#+NAME: #comparison-to-pure-angularjs
 * Comparison to pure AngularJS
 
 In order to compare the =ng-computed= approach with vanilla AngularJS,
@@ -703,3 +710,4 @@ which had to be corrected (forgetting to register watches, in
 particular).
 
 This example can be seen in practice at [[https://raw.githack.com/ClearboxSystems/ng-computed/master/examples/comparison/index.html][/examples/comparison/index.html]]
+
