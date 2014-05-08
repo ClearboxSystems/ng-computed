@@ -600,7 +600,7 @@ This means that it's easy to fix our ~query~ function above:
 #+END_SRC
 
 Now when a ~query(...)~ specification is deregistered it will make
-sure it also deregisters it's query, if it has one. This approach can
+sure it also deregisters its query, if it has one. This approach can
 also work for poll-based systems, or any other long-lived resources.
 
 #+NAME: #debugging
