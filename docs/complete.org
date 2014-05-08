@@ -368,107 +368,6 @@ the evaluation of the ~$computed~ value (this may be simply setting it
 on the scope, or may result in further computation [see
 [[#transformations][Transformations]] for more details]).
 
-** Long-lived specifications
-
-One thing which would be nice to have, and which =ng-computed= makes
-relatively easy, would be to be able to have function which don't
-only depend on scope properties, but also depend on other external
-data sources.
-
-As an example, imagine that we had a ~DB~ service. This service
-provides us with an interface to query an external database through a
-~query~ method. ~query~ returns to us a "promise" which can be
-resolved multiple times, and it ensures that it is continuously
-resolved with the correct, most up-to-date, value until we call
-~deregister~ on the result.
-
-#+BEGIN_SRC js
-  var result = DB.query("some query spec");
-  // use result
-  result.then(function(x){console.log("query result", x)});
-  // the above may be run multiple times,
-  // each time printing a new log line
-  // until this next line
-  result.deregister();
-#+END_SRC
-
-This type of an API can be easily wrapped to fit into an
-=ng-computed= specification:
-
-#+BEGIN_SRC js
-  DB.query = function(fn) {
-      var lastQuerySpec = null;
-      var lastResult = null;
-      return function() {
-          var querySpec = fn.apply(this, arguments);
-          if (angular.equals(querySpec, lastQuerySpec)) {
-              return lastResult;
-          } else {
-              if (lastResult != null) {
-                  lastResult.deregister();
-                  lastResult = null;
-              }
-              lastQuerySpec = angular.copy(querySpec);
-              return (lastResult = DB.query(querySpec));
-          }
-      };
-  };
-#+END_SRC
-
-Now we can use this ~query~ function to wrap a function which returns
-a query spec, which is then run on the database, returning the
-promise to ~$computed~ to extract:
-
-#+BEGIN_SRC js
-  var deregister = $scope.$computed('databaseValuePlusOne', [
-      DB.query(function() {
-          return "some sort of query spec";
-      }),
-      function(x) { return x + 1; }
-  ]);
-#+END_SRC
-
-This implementation, however, has a slight bug: when our computed
-property's ~deregister~ function is called, or when ~$scope~ is
-destroyed, it will leak the ~lastResult~ inside ~query~ without
-deregistering it first.
-
-In order to solve problems like this ~$computed~ will run the
-~destroy~ property of a specification object, if it exists, when it is
-deregistered. This gives a specification a hook to clean up anything
-it may have allocated.
-
-This means that it's easy to fix our ~query~ function above:
-
-#+BEGIN_SRC js
-    DB.query = function(fn) {
-        var lastQuerySpec = null;
-        var lastResult = null;
-        var finalFunction = function() {
-            var querySpec = fn.apply(this, arguments);
-            if (angular.equals(querySpec, lastQuerySpec)) {
-                return lastResult;
-            } else {
-                if (lastResult != null) {
-                    lastResult.deregister();
-                    lastResult = null;
-                }
-                lastQuerySpec = angular.copy(querySpec);
-                return (lastResult = DB.query(querySpec));
-            }
-        };
-        finalFunction.destroy = function() {
-            if (lastResult != null)
-                lastResult.deregister();
-        };
-        return finalFunction;
-    };
-#+END_SRC
-
-Now when a ~query(...)~ specification is deregistered it will make
-sure it also deregisters it's query, if it has one. This approach can
-also work for poll-based systems, or any other long-lived resources.
-
 *** Default configuration
 
 By default, ~$computed~ will extract a value from a ~$q~ promise if
@@ -603,9 +502,108 @@ account when writing extractors for asynchronous results.
      // unless we've invalidated the old callback
    #+END_SRC
 
+** Long-lived specifications
+
+One thing which would be nice to have, and which =ng-computed= makes
+relatively easy, would be to be able to have function which don't
+only depend on scope properties, but also depend on other external
+data sources.
+
+As an example, imagine that we had a ~DB~ service. This service
+provides us with an interface to query an external database through a
+~query~ method. ~query~ returns to us a "promise" which can be
+resolved multiple times, and it ensures that it is continuously
+resolved with the correct, most up-to-date, value until we call
+~deregister~ on the result.
+
+#+BEGIN_SRC js
+  var result = DB.query("some query spec");
+  // use result
+  result.then(function(x){console.log("query result", x)});
+  // the above may be run multiple times,
+  // each time printing a new log line
+  // until this next line
+  result.deregister();
+#+END_SRC
+
+This type of an API can be easily wrapped to fit into an
+=ng-computed= specification:
+
+#+BEGIN_SRC js
+  DB.query = function(fn) {
+      var lastQuerySpec = null;
+      var lastResult = null;
+      return function() {
+          var querySpec = fn.apply(this, arguments);
+          if (angular.equals(querySpec, lastQuerySpec)) {
+              return lastResult;
+          } else {
+              if (lastResult != null) {
+                  lastResult.deregister();
+                  lastResult = null;
+              }
+              lastQuerySpec = angular.copy(querySpec);
+              return (lastResult = DB.query(querySpec));
+          }
+      };
+  };
+#+END_SRC
+
+Now we can use this ~query~ function to wrap a function which returns
+a query spec, which is then run on the database, returning the
+promise to ~$computed~ to extract:
+
+#+BEGIN_SRC js
+  var deregister = $scope.$computed('databaseValuePlusOne', [
+      DB.query(function() {
+          return "some sort of query spec";
+      }),
+      function(x) { return x + 1; }
+  ]);
+#+END_SRC
+
+This implementation, however, has a slight bug: when our computed
+property's ~deregister~ function is called, or when ~$scope~ is
+destroyed, it will leak the ~lastResult~ inside ~query~ without
+deregistering it first.
+
+In order to solve problems like this ~$computed~ will run the
+~destroy~ property of a specification object, if it exists, when it is
+deregistered. This gives a specification a hook to clean up anything
+it may have allocated.
+
+This means that it's easy to fix our ~query~ function above:
+
+#+BEGIN_SRC js
+    DB.query = function(fn) {
+        var lastQuerySpec = null;
+        var lastResult = null;
+        var finalFunction = function() {
+            var querySpec = fn.apply(this, arguments);
+            if (angular.equals(querySpec, lastQuerySpec)) {
+                return lastResult;
+            } else {
+                if (lastResult != null) {
+                    lastResult.deregister();
+                    lastResult = null;
+                }
+                lastQuerySpec = angular.copy(querySpec);
+                return (lastResult = DB.query(querySpec));
+            }
+        };
+        finalFunction.destroy = function() {
+            if (lastResult != null)
+                lastResult.deregister();
+        };
+        return finalFunction;
+    };
+#+END_SRC
+
+Now when a ~query(...)~ specification is deregistered it will make
+sure it also deregisters it's query, if it has one. This approach can
+also work for poll-based systems, or any other long-lived resources.
 
 #+NAME: #debugging
-
 * Debugging
 
 TODO
