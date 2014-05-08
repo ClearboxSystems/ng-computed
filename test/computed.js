@@ -127,7 +127,7 @@ describe('$computed', function() {
                 expect(scope.value).toBe(27);
             });
 
-            iit('should do what is expected in the transformation documentation example', function() {
+            it('should do what is expected in the transformation documentation example', function() {
                 var run1 = 0, run2 = 0, run3 = 0, run4 = 0;
                 scope.$apply(function() {
                     scope.a = 3;
@@ -474,7 +474,26 @@ describe('$computed', function() {
                     def1.resolve(0); // this should be ignored now
                 });
                 expect(scope.computed).toBe(100);
-            }); 
+            });
+
+            it('shouldn\'t use promise if deregistered before resolution', function() {
+                var deferred = q.defer();
+                var deregister;
+                scope.$apply(function() {
+                    deregister = scope.$computed('computed', function() {
+                        return deferred.promise;
+                    });
+                });
+                expect(scope.computed).toBeUndefined();
+
+                deregister();
+                expect(scope.computed).toBeUndefined();
+
+                scope.$apply(function() {
+                    deferred.resolve(10);
+                });
+                expect(scope.computed).toBeUndefined();
+            });
 
             var pairsToObject = function() {
                 var result = {};

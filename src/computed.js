@@ -88,6 +88,7 @@ angular.module('ngComputed')
                     if (angular.isFunction(fn.destroy))
                         fn.destroy();
                     fixWatches(deps, {}, null, debugName);
+                    updateCount = null; // no more updates should come through any more
                     deregisterTrigger();
                     if (debugName)
                         delete dependencyGraph[debugName];
