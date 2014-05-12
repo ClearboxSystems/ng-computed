@@ -173,12 +173,12 @@ an attempt is made to minimise the number of invocations).
 
 ** Extraction
 
-When dealing with some types of data it's not possible to simply
-return a simple value type from a specification. In cases like
-asynchronous code it is often necessary to return some sort of a
-promise object which will be eventually resolved elsewhere. As a help
-for dealing with these cases, values returned by specifications
-undergo /extraction/ before being used.
+When dealing with some types of data it's not possible to return a
+simple value type from a specification. In cases like asynchronous
+code it is often necessary to return some sort of a promise object
+which will be eventually resolved elsewhere. As a help for dealing
+with these cases, values returned by specifications undergo
+/extraction/ before being used.
 
 By default, extraction consists of either returning the value as-is,
 or returning the value delivered by a ~$q~ promise. This extraction
@@ -204,8 +204,9 @@ accordingly.
 
 There are some occasions when calculating a value is a little bit more
 involved than simply concatenating two strings looked up off the
-scope. Sometimes a computation for a value is a clear, sequenced,
-operation. In cases like this we can use /transformations/.
+scope. Sometimes a value must be computed by an application of various
+functions in sequence. In cases like this we can use
+/transformations/.
 
 If ~$computed~ is given an array of functions as a specification, it
 will run through each of them in sequence, calling each function with
