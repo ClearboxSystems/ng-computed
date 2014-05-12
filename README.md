@@ -105,25 +105,6 @@ or bind them on any sub-scope.
 
 ## Documentation
 
-We're currently working on proper documentation, but for now you can
-read the documents in [/docs/][6].
+See [/docs/complete.org][6] for our current documentation.
 
-There are three main parts to `ng-computed`:
-
-* [watches][7]: How are watches registered? What kinds of watches are
-  registered? How can I control this?
-* [extractors][8]: Shortcuts for extracting values out of
-  containers. By default only `$q` promises benefit from this
-  extraction, but this section discusses how it works and how to
-  extend `ng-computed` with your own container types.
-* [transformations][9]: Transformation functions allow you to sequence
-  a computation without storing intermediate values on the scope. They
-  are particularly useful for operations performed after asynchronous
-  operations.
-* [debug][9]: A bit of debug information concerning your dependencies
-
-[6]: ./docs/
-[7]: ./docs/03-watches.md
-[8]: ./docs/04-extractors.md
-[9]: ./docs/05-transformations.md
-[10]: ./docs/06-debug.md
+[6]: ./docs/complete.org

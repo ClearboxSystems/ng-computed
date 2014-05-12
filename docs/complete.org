@@ -32,7 +32,7 @@ start]].
 #+NAME: #hello-world-example
 * Hello World Example
 
-#+BEGIN_SRC js
+#+BEGIN_SRC js :tangle test.js
   angular.module('app', ['ngComputed', 'ng'])
       .controller('HelloWorldController', function($scope, $computed, $trackedEval) {
           angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
@@ -606,14 +606,83 @@ also work for poll-based systems, or any other long-lived resources.
 #+NAME: #debugging
 * Debugging
 
-TODO
+NOTE: The debug API is likely to change in future, so don't rely on
+its functionality for production code.
 
+=ng-computed=, in the process of managing dependencies, builds and
+implicit dependency graph of your expressions. This dependency graph
+can be made explicit by enabling the debug mode on ~$computed~:
 
-#+NAME: #internals
-* Internals
+#+BEGIN_SRC js
+  angular.module('app', ['ng', 'ngComputed'])
+      .config(function($computedProvider) {
+          $computedProvider.useDebug(true);
+      })
+#+END_SRC
 
-TODO
+This enables the ~$computed.dependencyGraph()~ function, which will
+return a javascript object specifying the dependencies. The structure
+of this object is most easily demonstrated with a small example:
 
+#+BEGIN_SRC js
+  $scope.firstName = "George";
+  $scope.surname = "Clooney";
+  $scope.$computed("fullName", function() {
+      return $scope.$eval("firstName") + " " + $scope.$eval("surname");
+  });
+#+END_SRC
+
+This example will produce a dependency graph with the following value
+(assume ~$scope.$id = 01C~):
+
+#+BEGIN_SRC js
+  {
+      "01C|fullName#0": {
+          "01C|firstName|equal": "George",
+          "01C|surname|equal": "Clooney"
+      }
+  }
+#+END_SRC
+
+Top level expressions are encoded as =scopeId|expression#number=,
+where =scopeId= is the id of the scope it's created on, =expression=
+is the expression that is being written to, and =number= is the step
+in the transformation sequence for this expression (see
+[[#transformations][the section on transformations]] for more details).
+
+Dependencies are encoded as =scopeId|expression|type=, where =scopeId=
+is the id of the scope being watched, =expression= is the expression,
+and =type= is the type of watch this dependency is (equal, reference
+or collection).
+
+The value at the end is the value which was taken last time
+=$computed= evaluated that dependency. This should correspond to the
+value it took at the last =$digest= cycle.
+
+** Drawing dependencies
+
+On the ~$computed~ service there is a method ~drawDependencies~ which
+will draw a dependency graph for you. This function uses [[http://d3js.org/][d3]] to draw a
+force-directed graph of the current state of the dependencies in your
+application (and it will update in real-time as dependencies
+change). This is a global view of all dependencies, not a view of any
+one particular scope.
+
+In order to avoid explicitly depending on =d3=, you must provide the
+=d3= object to this method when you call it. An example invocation can
+be found in the [[https://raw.githack.com/ClearboxSystems/ng-computed/master/examples/basic-example/index.html][basic example]] provided with =ng-computed=.
+
+#+BEGIN_SRC js
+  $scope.$computed.drawDependencies(d3, $element.find('svg')[0], {
+      width: 500,
+      height: 100
+  });
+#+END_SRC
+
+At present the element provided as the second argument must be an
+=svg= element, and the only options in the options map which are
+meaningful are =width= and =height=. This function may be improved in
+future, but it is not a priority.
 
 #+NAME: #comparison-to-pure-angularjs
 * Comparison to pure AngularJS
