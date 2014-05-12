@@ -257,7 +257,7 @@ and composing functions, though:
 
    In this case, ~$scope.sumIsEven~ will be set to true if the
    properties ~a~, ~b~ and ~c~ on ~$scope~ sum together to be an even
-   number, and false otherwise. When any of ~a~, ~b~ or ~c~ chpfange
+   number, and false otherwise. When any of ~a~, ~b~ or ~c~ change
    then their step of the function is re-run. If the value has changed
    then the next step of the chain is invoked, and so on.
 
