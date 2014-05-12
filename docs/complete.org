@@ -141,9 +141,9 @@ about the dependency, we always retrieve values using ~$trackedEval~
   $scope.firstName = "George";
   $scope.surname = "Clooney";
   $scope.$computed('fullName', function() {
-      return $scope.eval('firstName')
+      return $scope.$eval('firstName')
           + " "
-          + $scope.eval('surname');
+          + $scope.$eval('surname');
   });
 #+END_SRC
 
