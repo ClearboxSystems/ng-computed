@@ -6,8 +6,16 @@ Computed properties for [[http://angularjs.org/][AngularJS]], à la [[http://kno
 
 : bower install ng-computed
 
+- [[#motivation][Motivation]]
+- [[#hello-world-example][Hello World example]]
+- [[#installation][Installation]]
+- [[#usage][Usage]]
+- [[#custom-behaviour][Custom behaviour]]
+- [[#debugging][Debugging]]
+- [[#comparison-to-pure-angularjs][Comparison to pure AngularJS]]
 
 * Motivation
+#+NAME: #motivation
 
 When writing applications within the AngularJS framework, it is often
 necessary to compute values for scope properties which are dependent
@@ -28,9 +36,8 @@ down to [[#internals][our description of the internals]]. If you're just interes
 using =ng-computed= then [[#installation][installation is probably the best place to
 start]].
 
-
-#+NAME: #hello-world-example
 * Hello World Example
+#+NAME: #hello-world-example
 
 #+BEGIN_SRC js :tangle test.js
   angular.module('app', ['ngComputed', 'ng'])
@@ -50,9 +57,8 @@ mechanisms, and it will be recalculated whenever the values of
 
 For a more complete example, see [[#comparison-to-pure-angularjs][the comparative example below]].
 
-
-#+NAME: #installation
 * Installation
+#+NAME: #installation
 
 There are a few options for how to set up =ng-computed= in your
 project. Throughout the documentation we're assuming you've opted for
@@ -116,6 +122,7 @@ and they will function normally.
 #+END_SRC
 
 * Usage
+#+NAME: #usage
 
 Using =ng-computed= is quite simple. When you wish to create a
 computed property, call ~$computed~ with the property's name (as a
@@ -198,9 +205,8 @@ fetching the URL specified in ~$scope.url~. As ~$scope.url~ changes,
 new requests will be made and ~$scope.requestResult~ will be updated
 accordingly.
 
-
-#+NAME: #transformations
 ** Transformations
+#+NAME: #transformations
 
 There are some occasions when calculating a value is a little bit more
 involved than simply concatenating two strings looked up off the
@@ -294,6 +300,7 @@ logic to be captured within a series of transformations while
 an appropriate time.
 
 * Custom behaviour
+#+NAME: #custom-behaviour
 
 ** Watches
 
@@ -350,9 +357,8 @@ on large objects, so =ng-computed= provides two tools to help:
          }]);
    #+END_SRC
 
-
-#+NAME: #extractors
 ** Extractors
+#+NAME: #extractors
 
 Often when a value is returned for a ~$computed~ property there is
 some more work to be done: the value needs to be /extracted/ from some
@@ -604,8 +610,8 @@ Now when a ~query(...)~ specification is deregistered it will make
 sure it also deregisters its query, if it has one. This approach can
 also work for poll-based systems, or any other long-lived resources.
 
-#+NAME: #debugging
 * Debugging
+#+NAME: #debugging
 
 NOTE: The debug API is likely to change in future, so don't rely on
 its functionality for production code.
@@ -685,8 +691,8 @@ At present the element provided as the second argument must be an
 meaningful are =width= and =height=. This function may be improved in
 future, but it is not a priority.
 
-#+NAME: #comparison-to-pure-angularjs
 * Comparison to pure AngularJS
+#+NAME: #comparison-to-pure-angularjs
 
 In order to compare the =ng-computed= approach with vanilla AngularJS,
 let's build a simple application.
