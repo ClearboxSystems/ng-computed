@@ -10,7 +10,12 @@ Computed properties for [[http://angularjs.org/][AngularJS]], à la [[http://kno
 - [[#hello-world-example][Hello World example]]
 - [[#installation][Installation]]
 - [[#usage][Usage]]
+  - [[#extraction][Extraction]]
+  - [[#transformations][Transformations]]
 - [[#custom-behaviour][Custom behaviour]]
+  - [[#watches][Watches]]
+  - [[#extractors][Extractors]]
+  - [[#long-lived-specifications][Long-lived specifications]]
 - [[#debugging][Debugging]]
 - [[#comparison-to-pure-angularjs][Comparison to pure AngularJS]]
 
@@ -31,10 +36,9 @@ re-evaluated. =ng-computed= will take care of all the details so you
 can focus on your actual computation.
 
 If you're not convinced that this is such a great idea, take a look at
-[[#hello-world-example][the example below]]. If you're interested in how everything works, jump
-down to [[#internals][our description of the internals]]. If you're just interested in
-using =ng-computed= then [[#installation][installation is probably the best place to
-start]].
+[[#hello-world-example][the example below]] (and the example further linked from there). If
+you're just interested in using =ng-computed= then [[#installation][installation is
+probably the best place to start]].
 
 * Hello World Example
 #+NAME: #hello-world-example
@@ -179,6 +183,7 @@ guarantees about how many times a specification is invoked (although
 an attempt is made to minimise the number of invocations).
 
 ** Extraction
+#+NAME: #extraction
 
 When dealing with some types of data it's not possible to return a
 simple value type from a specification. In cases like asynchronous
@@ -303,6 +308,7 @@ an appropriate time.
 #+NAME: #custom-behaviour
 
 ** Watches
+#+NAME: #watches
 
 By default, ~$trackedEval~ tracks all dependencies as *deep equality*
 watches. This can be quite inefficient, especially for dependencies
@@ -510,6 +516,7 @@ account when writing extractors for asynchronous results.
    #+END_SRC
 
 ** Long-lived specifications
+#+NAME: #long-lived-specifications
 
 One thing which would be nice to have, and which =ng-computed= makes
 relatively easy, would be to be able to have function which don't
