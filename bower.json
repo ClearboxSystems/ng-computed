@@ -1,6 +1,6 @@
 {
     "name": "ng-computed",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "ignore": [
         "src", "test", "examples", "docs",
         "karma.conf.js", "Gruntfile.js",
