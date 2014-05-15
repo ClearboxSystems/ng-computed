@@ -57,7 +57,13 @@ module.exports = function (grunt) {
                 'Gruntfile.js',
                 'src/**/*'
             ],
-            tasks: ['default']
+            tasks: ['default', 'karma:unit:run']
+        },
+        karma: {
+            unit: {
+                configFile: "karma.conf.js",
+                background: true
+            }
         }
     });
 
@@ -65,8 +71,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-karma');
 
     grunt.registerTask('default', ['jshint:beforeConcat', 'concat', 'jshint:afterConcat', 'uglify']);
-    grunt.registerTask('livereload', ['default', 'watch']);
+    grunt.registerTask('live', ['default', 'karma:unit:start', 'karma:unit:run', 'watch']);
 
 };
