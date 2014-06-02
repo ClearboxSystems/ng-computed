@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README</title>
+<!-- 2014-06-02 Mon 16:25 -->
+<meta  charset="utf-8">
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="Carlo Zancanaro">
+<link rel="stylesheet" type="text/css" href="stylesheets/styles.css">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">README</h1>
+<p>
+Welcome to "how to generate the <code>ng-computed</code> documentation"!
+</p>
+
+<p>
+This documentation was last compiled using <a href="http://orgmode.org/">org-mode</a>
+<code>8.2.6</code> in <a href="http://www.gnu.org/software/emacs/">GNU emacs</a>
+<code>24.3.1</code>. Just execute the "src" block below to
+generate all the HTML files!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #859900;">require</span> '<span style="color: #2aa198;">org-publish</span>)
+(<span style="color: #859900;">require</span> '<span style="color: #2aa198;">ox-html</span>)
+
+(setq
+ org-html-doctype <span style="color: #2aa198;">"html5"</span>
+ org-publish-project-alist (<span style="color: #859900;">let</span> ((root (file-name-directory (buffer-file-name))))
+                             `((<span style="color: #2aa198;">"ng-computed-pages"</span>
+                                <span style="color: #859900;">:base-directory</span> ,root
+                                <span style="color: #859900;">:base-extension</span> <span style="color: #2aa198;">"org"</span>
+                                <span style="color: #859900;">:publishing-directory</span> ,root
+                                <span style="color: #859900;">:recursive</span> t
+
+                                <span style="color: #859900;">:publishing-function</span> org-html-publish-to-html
+
+                                <span style="color: #859900;">:html-head-include-default-style</span> nil
+                                <span style="color: #859900;">:html-head</span> <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\"&gt;"</span>
+                                <span style="color: #586e75; font-style: italic;">;;</span><span style="color: #586e75; font-style: italic;">:html-preamble "&lt;p class=\"github-link\"&gt;&lt;a href=\"https://github.com/ClearboxSystems/ng-computed\"&gt;On Github&lt;/a&gt;&lt;/p&gt;"</span>
+                                <span style="color: #859900;">:html-postamble</span> ,(concat <span style="color: #2aa198;">"&lt;p class=\"author\"&gt;Author: %a (%e)&lt;/p&gt;\n"</span>
+                                                         <span style="color: #2aa198;">"&lt;p class=\"creator\"&gt;%c&lt;/p&gt;\n"</span>
+                                                         <span style="color: #2aa198;">"&lt;p class=\"github-link\"&gt;&lt;a href=\"https://github.com/ClearboxSystems/ng-computed\"&gt;On Github&lt;/a&gt;&lt;/p&gt;"</span>)
+
+                                <span style="color: #859900;">:section-numbers</span> nil
+                                <span style="color: #859900;">:with-toc</span> nil
+
+                                <span style="color: #859900;">:author</span> <span style="color: #2aa198;">"Carlo Zancanaro"</span>
+                                <span style="color: #859900;">:email</span> <span style="color: #2aa198;">"carlo@clearboxsystems.com.au"</span>))))
+(add-to-list 'org-src-lang-modes
+             '(<span style="color: #2aa198;">"html-example"</span> . html))
+(add-to-list 'org-babel-load-languages
+             '(html-example . t))
+
+(add-to-list 'org-src-lang-modes
+             '(<span style="color: #2aa198;">"js-example"</span> . js))
+(add-to-list 'org-babel-load-languages
+             '(js-example . t))
+
+(<span style="color: #859900;">defun</span> <span style="color: #268bd2;">org-babel-execute:html-example</span> (body params)
+  body)
+(<span style="color: #859900;">provide</span> '<span style="color: #2aa198;">ob-html-example</span>)
+
+(<span style="color: #859900;">defun</span> <span style="color: #268bd2;">org-babel-execute:js-example</span> (body params)
+  (concat <span style="color: #2aa198;">"&lt;script&gt;\n"</span> body <span style="color: #2aa198;">"\n&lt;/script&gt;"</span>))
+(<span style="color: #859900;">provide</span> '<span style="color: #2aa198;">ob-js-example</span>)
+
+(<span style="color: #859900;">let</span> ((old org-confirm-babel-evaluate))
+  (org-publish-remove-all-timestamps)
+  (setq org-confirm-babel-evaluate nil)
+  (org-publish <span style="color: #2aa198;">"ng-computed-pages"</span>)
+  (setq org-confirm-babel-evaluate old))
+
+<span style="color: #586e75; font-style: italic;">;; </span><span style="color: #586e75; font-style: italic;">put your cursor here, then type C-c C-c, then answer yes if you're asked</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Carlo Zancanaro (<a href="mailto:carlo@clearboxsystems.com.au">carlo@clearboxsystems.com.au</a>)</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.6)</p>
+<p class="github-link"><a href="https://github.com/ClearboxSystems/ng-computed">On Github</a></p>
+</div>
+</body>
+</html>

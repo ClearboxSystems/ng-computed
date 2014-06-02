@@ -1,0 +1,62 @@
+#+TITLE: README
+
+Welcome to "how to generate the =ng-computed= documentation"!
+
+This documentation was last compiled using [[http://orgmode.org][org-mode]]
+src_emacs-lisp{org-version} in [[http://www.gnu.org/software/emacs/][GNU emacs]]
+src_emacs-lisp{emacs-version}. Just execute the "src" block below to
+generate all the HTML files!
+
+#+BEGIN_SRC emacs-lisp :results none
+  (require 'org-publish)
+  (require 'ox-html)
+
+  (setq
+   org-html-doctype "html5"
+   org-publish-project-alist (let ((root (file-name-directory (buffer-file-name))))
+                               `(("ng-computed-pages"
+                                  :base-directory ,root
+                                  :base-extension "org"
+                                  :publishing-directory ,root
+                                  :recursive t
+
+                                  :publishing-function org-html-publish-to-html
+
+                                  :html-head-include-default-style nil
+                                  :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\">"
+                                  ;;:html-preamble "<p class=\"github-link\"><a href=\"https://github.com/ClearboxSystems/ng-computed\">On Github</a></p>"
+                                  :html-postamble ,(concat "<p class=\"author\">Author: %a (%e)</p>\n"
+                                                           "<p class=\"creator\">%c</p>\n"
+                                                           "<p class=\"github-link\"><a href=\"https://github.com/ClearboxSystems/ng-computed\">On Github</a></p>")
+
+                                  :section-numbers nil
+                                  :with-toc nil
+
+                                  :author "Carlo Zancanaro"
+                                  :email "carlo@clearboxsystems.com.au"))))
+  (add-to-list 'org-src-lang-modes
+               '("html-example" . html))
+  (add-to-list 'org-babel-load-languages
+               '(html-example . t))
+
+  (add-to-list 'org-src-lang-modes
+               '("js-example" . js))
+  (add-to-list 'org-babel-load-languages
+               '(js-example . t))
+
+  (defun org-babel-execute:html-example (body params)
+    body)
+  (provide 'ob-html-example)
+
+  (defun org-babel-execute:js-example (body params)
+    (concat "<script>\n" body "\n</script>"))
+  (provide 'ob-js-example)
+
+  (let ((old org-confirm-babel-evaluate))
+    (org-publish-remove-all-timestamps)
+    (setq org-confirm-babel-evaluate nil)
+    (org-publish "ng-computed-pages")
+    (setq org-confirm-babel-evaluate old))
+
+  ;; put your cursor here, then type C-c C-c, then answer yes if you're asked
+#+END_SRC

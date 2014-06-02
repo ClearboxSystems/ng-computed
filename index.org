@@ -1,0 +1,71 @@
+#+TITLE: ng-computed
+
+Computed properties for [[http://angularjs.org/][AngularJS]], à la [[http://knockoutjs.com/][Knockout JS]].
+
+#+BEGIN_SRC sh
+  bower install ng-computed
+#+END_SRC
+
+* Motivation
+
+When writing applications within the AngularJS framework, it is often
+necessary to compute values for scope properties which are dependent
+on other scope values. AngularJS provides a basic mechanism to keep
+these values up to date (~$watch~, and its variants), but these can
+often become unwieldy as your dependencies become more complex or
+dynamic.
+
+This is the problem that =ng-computed= is aiming to solve. Within a
+~$computed~ value's body it is not necessary to explicitly declare
+what values you depend on, or when this value should be
+re-evaluated. =ng-computed= will take care of all the details so you
+can focus on your actual computation.
+
+* Hello World Example
+
+#+BEGIN_HTML
+  <script src="javascripts/angular.js"></script>
+  <script src="javascripts/ng-computed.min.js"></script>
+#+END_HTML
+
+#+NAME: hello-world-html
+#+BEGIN_SRC html-example :exports both :results html
+  <div ng-app="hello-world-example">
+    <table ng-controller="HelloWorldController">
+      <tr>
+        <td>$scope.hello</td>
+        <td><input type="text" ng-model="hello"></td>
+      </tr>
+      <tr>
+        <td>$scope.world</td>
+        <td><input type="text" ng-model="world"></td>
+      </tr>
+      <tr>
+        <td>$scope.helloWorld</td>
+        <td>{{helloWorld}}</td>
+      </tr>
+    </table>
+  </div>
+#+END_SRC
+
+#+NAME: hello-world-js
+#+BEGIN_SRC js-example :exports both :results html
+  angular.module('hello-world-example', ['ngComputed', 'ng'])
+      .controller('HelloWorldController', function($scope, $computed, $trackedEval) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+          $scope.hello = "hello";
+          $scope.world = "world";
+          $scope.$computed("helloWorld", function() {
+              return $scope.$eval("hello") + ", " + $scope.$eval("world") + "!";
+          });
+      });
+#+END_SRC
+
+~$scope.helloWorld~ will be kept updated by the usual AngularJS watch
+mechanisms, and it will be recalculated whenever the values of
+~$scope.hello~ or ~$scope.world~ change.
+
+Here's that example in action:
+
+#+RESULTS: hello-world-html
+#+RESULTS: hello-world-js
