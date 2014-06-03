@@ -13,27 +13,38 @@ generate all the HTML files!
 
   (setq
    org-html-doctype "html5"
-   org-publish-project-alist (let ((root (file-name-directory (buffer-file-name))))
-                               `(("ng-computed-pages"
-                                  :base-directory ,root
-                                  :base-extension "org"
-                                  :publishing-directory ,root
-                                  :recursive t
+   org-publish-project-alist (let* ((root (file-name-directory (buffer-file-name)))
+                                    (default-postamble (concat "<p class=\"author\">Author: %a (%e)</p>\n"
+                                                               "<p class=\"creator\">%c</p>\n"
+                                                               "<p class=\"github-link\"><a href=\"https://github.com/ClearboxSystems/ng-computed\">On Github</a></p>"))
+                                    (base-project `(:html-postamble ,default-postamble
 
-                                  :publishing-function org-html-publish-to-html
+                                                    :html-head-include-default-style nil
 
-                                  :html-head-include-default-style nil
-                                  :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\">"
-                                  ;;:html-preamble "<p class=\"github-link\"><a href=\"https://github.com/ClearboxSystems/ng-computed\">On Github</a></p>"
-                                  :html-postamble ,(concat "<p class=\"author\">Author: %a (%e)</p>\n"
-                                                           "<p class=\"creator\">%c</p>\n"
-                                                           "<p class=\"github-link\"><a href=\"https://github.com/ClearboxSystems/ng-computed\">On Github</a></p>")
+                                                    :base-extension "org"
+                                                    :publishing-function org-html-publish-to-html
 
-                                  :section-numbers nil
-                                  :with-toc nil
+                                                    :section-numbers nil
+                                                    :with-toc nil
 
-                                  :author "Carlo Zancanaro"
-                                  :email "carlo@clearboxsystems.com.au"))))
+                                                    :author "Carlo Zancanaro"
+                                                    :email "carlo@clearboxsystems.com.au")))
+                               (list (append `("ng-computed:root"
+                                               :base-directory ,root
+                                               :publishing-directory ,root
+                                               :html-head ,(concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\">"
+                                                                   "<script src=\"javascripts/angular.js\"></script>"
+                                                                   "<script src=\"javascripts/ng-computed.min.js\"></script>")
+                                               )
+                                             base-project)
+                                     (append `("ng-computed:pages" 
+                                               :base-directory ,(concat root "pages")
+                                               :publishing-directory ,(concat root "pages")
+                                               :html-head ,(concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"../stylesheets/styles.css\">"
+                                                                   "<script src=\"../javascripts/angular.js\"></script>"
+                                                                   "<script src=\"../javascripts/ng-computed.min.js\"></script>"))
+                                             base-project)
+                                     '("ng-computed" :components ("ng-computed:root" "ng-computed:pages")))))
   (add-to-list 'org-src-lang-modes
                '("html-example" . html))
   (add-to-list 'org-babel-load-languages
@@ -55,7 +66,7 @@ generate all the HTML files!
   (let ((old org-confirm-babel-evaluate))
     (org-publish-remove-all-timestamps)
     (setq org-confirm-babel-evaluate nil)
-    (org-publish "ng-computed-pages")
+    (org-publish "ng-computed")
     (setq org-confirm-babel-evaluate old))
 
   ;; put your cursor here, then type C-c C-c, then answer yes if you're asked

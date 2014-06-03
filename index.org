@@ -23,11 +23,6 @@ can focus on your actual computation.
 
 * Hello World Example
 
-#+BEGIN_HTML
-  <script src="javascripts/angular.js"></script>
-  <script src="javascripts/ng-computed.min.js"></script>
-#+END_HTML
-
 #+NAME: hello-world-html
 #+BEGIN_SRC html-example :exports both :results html
   <div ng-app="hello-world-example">

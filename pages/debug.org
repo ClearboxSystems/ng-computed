@@ -1,0 +1,77 @@
+#+TITLE: Debug
+
+* Introduction
+
+In this example we'll show you how to use =ng-computed='s debug
+tools. There is fundamentally only one piece of information which
+=ng-computed= keeps that is not kept by AngularJS itself, and that is
+a dependency graph. Ordinarily the dependency graph is implicit and
+unreachable, but by turning on debug mode we can make =ng-computed=
+store the graph in an explicit form.
+
+* Example in action
+
+#+RESULTS: object-example-html
+#+RESULTS: object-example-js
+
+Above the horizontal line is the form that we're actually interested
+in. The input values are in some way combined to form a computed
+value. In this case the computation is very simple: if the checkbox is
+checked: use the value in the text input; otherwise: use the string
+"default value".
+
+Beneath the horizontal line you can see a textual representation of
+the dependency graph that was generated. As you change the checkbox's
+value the graph will change because the dependency on the text input's
+value will become either relevant or irrelevant.
+
+The code to generate this example is presented below. The only unusual
+thing is the line marked [[(enabling-debug)]], where =ng-computed= is
+instructed to maintain an explicit dependency graph.
+
+#+NAME: object-example-js
+#+BEGIN_SRC js-example :exports both :results html
+  angular.module('Simple', ['ng', 'ngComputed'])
+      .config(function($computedProvider) {
+          $computedProvider.useDebug(true); // (ref:enabling-debug)
+      })
+      .controller('SimpleCtrl', function($scope, $trackedEval, $computed) {
+          angular.extend($scope, {$eval: $trackedEval, $computed: $computed});
+          $scope.useCustomValue = false;
+          $scope.customValue = "";
+          $scope.$computed('computedValue', function() {
+              if ($scope.$eval('useCustomValue')) {
+                  return $scope.$eval('customValue');
+              } else {
+                  return "default value";
+              }
+          });
+      });
+#+END_SRC
+
+#+NAME: object-example-html
+#+BEGIN_SRC html-example :exports both :results html
+  <div ng-app="Simple"
+       ng-controller="SimpleCtrl">
+    <div>
+      <label>Use custom value: <input type="checkbox" ng-model="useCustomValue"></label>
+    </div>
+    <div>
+      <label>Custom value: <input type="text" ng-model="customValue"></label>
+    </div>
+    <div>
+      Computed value: <span ng-bind="computedValue"></span>
+    </div>
+    <hr>
+    <ul>
+      <li ng-repeat="(expr, deps) in $computed.dependencyGraph()">
+        <strong>{{ expr }}</strong> depends on:
+        <ul>
+          <li ng-repeat="(dep, val) in deps">
+            <strong>{{ dep }}</strong>, last processed as: <strong>{{ val | json }}</strong>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+#+END_SRC

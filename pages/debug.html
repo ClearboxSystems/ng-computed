@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Debug</title>
+<!-- 2014-06-03 Tue 17:18 -->
+<meta  charset="utf-8">
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="Carlo Zancanaro">
+<link rel="stylesheet" type="text/css" href="../stylesheets/styles.css"><script src="../javascripts/angular.js"></script><script src="../javascripts/ng-computed.min.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Debug</h1>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+In this example we'll show you how to use <code>ng-computed</code>'s debug
+tools. There is fundamentally only one piece of information which
+<code>ng-computed</code> keeps that is not kept by AngularJS itself, and that is
+a dependency graph. Ordinarily the dependency graph is implicit and
+unreachable, but by turning on debug mode we can make <code>ng-computed</code>
+store the graph in an explicit form.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Example in action</h2>
+<div class="outline-text-2" id="text-2">
+<div ng-app="Simple"
+     ng-controller="SimpleCtrl">
+  <div>
+    <label>Use custom value: <input type="checkbox" ng-model="useCustomValue"></label>
+  </div>
+  <div>
+    <label>Custom value: <input type="text" ng-model="customValue"></label>
+  </div>
+  <div>
+    Computed value: <span ng-bind="computedValue"></span>
+  </div>
+  <hr>
+  <ul>
+    <li ng-repeat="(expr, deps) in $computed.dependencyGraph()">
+      <strong>{{ expr }}</strong> depends on:
+      <ul>
+        <li ng-repeat="(dep, val) in deps">
+          <strong>{{ dep }}</strong>, last processed as: <strong>{{ val | json }}</strong>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<script>
+angular.module('Simple', ['ng', 'ngComputed'])
+    .config(function($computedProvider) {
+        $computedProvider.useDebug(true); // (ref:enabling-debug)
+    })
+    .controller('SimpleCtrl', function($scope, $trackedEval, $computed) {
+        angular.extend($scope, {$eval: $trackedEval, $computed: $computed});
+        $scope.useCustomValue = false;
+        $scope.customValue = "";
+        $scope.$computed('computedValue', function() {
+            if ($scope.$eval('useCustomValue')) {
+                return $scope.$eval('customValue');
+            } else {
+                return "default value";
+            }
+        });
+    });
+</script>
+
+<p>
+Above the horizontal line is the form that we're actually interested
+in. The input values are in some way combined to form a computed
+value. In this case the computation is very simple: if the checkbox is
+checked: use the value in the text input; otherwise: use the string
+"default value".
+</p>
+
+<p>
+Beneath the horizontal line you can see a textual representation of
+the dependency graph that was generated. As you change the checkbox's
+value the graph will change because the dependency on the text input's
+value will become either relevant or irrelevant.
+</p>
+
+<p>
+The code to generate this example is presented below. The only unusual
+thing is the line marked <a href="#coderef-enabling-debug"class="coderef" onmouseover="CodeHighlightOn(this, 'coderef-enabling-debug');" onmouseout="CodeHighlightOff(this, 'coderef-enabling-debug');">enabling-debug</a>, where <code>ng-computed</code> is
+instructed to maintain an explicit dependency graph.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="object-example-js">angular.module(<span style="color: #2aa198;">'Simple'</span>, [<span style="color: #2aa198;">'ng'</span>, <span style="color: #2aa198;">'ngComputed'</span>])
+    .config(<span style="color: #859900;">function</span>(<span style="color: #268bd2;">$computedProvider</span>) {
+<span id="coderef-enabling-debug" class="coderef-off">        $computedProvider.useDebug(<span style="color: #2aa198;">true</span>); <span style="color: #586e75; font-style: italic;">//</span> (enabling-debug)</span>
+    })
+    .controller(<span style="color: #2aa198;">'SimpleCtrl'</span>, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">$scope</span>, <span style="color: #268bd2;">$trackedEval</span>, <span style="color: #268bd2;">$computed</span>) {
+        angular.extend($scope, {$eval: $trackedEval, $computed: $computed});
+        $scope.useCustomValue = <span style="color: #2aa198;">false</span>;
+        $scope.customValue = <span style="color: #2aa198;">""</span>;
+        $scope.$computed(<span style="color: #2aa198;">'computedValue'</span>, <span style="color: #859900;">function</span>() {
+            <span style="color: #859900;">if</span> ($scope.$eval(<span style="color: #2aa198;">'useCustomValue'</span>)) {
+                <span style="color: #859900;">return</span> $scope.$eval(<span style="color: #2aa198;">'customValue'</span>);
+            } <span style="color: #859900;">else</span> {
+                <span style="color: #859900;">return</span> <span style="color: #2aa198;">"default value"</span>;
+            }
+        });
+    });
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-html-example" id="object-example-html">&lt;<span style="color: #268bd2;">div</span> <span style="color: #268bd2;">ng-app</span>=<span style="color: #2aa198;">"Simple"</span>
+     <span style="color: #268bd2;">ng-controller</span>=<span style="color: #2aa198;">"SimpleCtrl"</span>&gt;
+  &lt;<span style="color: #268bd2;">div</span>&gt;
+    &lt;<span style="color: #268bd2;">label</span>&gt;Use custom value: &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">type</span>=<span style="color: #2aa198;">"checkbox"</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"useCustomValue"</span>&gt;&lt;/<span style="color: #268bd2;">label</span>&gt;
+  &lt;/<span style="color: #268bd2;">div</span>&gt;
+  &lt;<span style="color: #268bd2;">div</span>&gt;
+    &lt;<span style="color: #268bd2;">label</span>&gt;Custom value: &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">type</span>=<span style="color: #2aa198;">"text"</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"customValue"</span>&gt;&lt;/<span style="color: #268bd2;">label</span>&gt;
+  &lt;/<span style="color: #268bd2;">div</span>&gt;
+  &lt;<span style="color: #268bd2;">div</span>&gt;
+    Computed value: &lt;<span style="color: #268bd2;">span</span> <span style="color: #268bd2;">ng-bind</span>=<span style="color: #2aa198;">"computedValue"</span>&gt;&lt;/<span style="color: #268bd2;">span</span>&gt;
+  &lt;/<span style="color: #268bd2;">div</span>&gt;
+  &lt;<span style="color: #268bd2;">hr</span>&gt;
+  &lt;<span style="color: #268bd2;">ul</span>&gt;
+    &lt;<span style="color: #268bd2;">li</span> <span style="color: #268bd2;">ng-repeat</span>=<span style="color: #2aa198;">"(expr, deps) in $computed.dependencyGraph()"</span>&gt;
+      &lt;<span style="color: #268bd2;">strong</span>&gt;<span style="font-weight: bold;">{{ expr }}</span>&lt;/<span style="color: #268bd2;">strong</span>&gt; depends on:
+      &lt;<span style="color: #268bd2;">ul</span>&gt;
+        &lt;<span style="color: #268bd2;">li</span> <span style="color: #268bd2;">ng-repeat</span>=<span style="color: #2aa198;">"(dep, val) in deps"</span>&gt;
+          &lt;<span style="color: #268bd2;">strong</span>&gt;<span style="font-weight: bold;">{{ dep }}</span>&lt;/<span style="color: #268bd2;">strong</span>&gt;, last processed as: &lt;<span style="color: #268bd2;">strong</span>&gt;<span style="font-weight: bold;">{{ val | json }}</span>&lt;/<span style="color: #268bd2;">strong</span>&gt;
+        &lt;/<span style="color: #268bd2;">li</span>&gt;
+      &lt;/<span style="color: #268bd2;">ul</span>&gt;
+    &lt;/<span style="color: #268bd2;">li</span>&gt;
+  &lt;/<span style="color: #268bd2;">ul</span>&gt;
+&lt;/<span style="color: #268bd2;">div</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Carlo Zancanaro (<a href="mailto:carlo@clearboxsystems.com.au">carlo@clearboxsystems.com.au</a>)</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.6)</p>
+<p class="github-link"><a href="https://github.com/ClearboxSystems/ng-computed">On Github</a></p>
+</div>
+</body>
+</html>

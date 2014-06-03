@@ -91,6 +91,10 @@ textarea { overflow-x: auto; }
     margin-top: 10px;
 }
 
+a, a:visited {
+    color: #00f;
+}
+
 [ng-app] {
     position: relative;
     border: 1px solid #ccc;
@@ -130,4 +134,4 @@ pre.src:before, [ng-app]:before {
     border-right: none;
 }
 
-
+.code-highlighted { background-color: #fafaaa; }

@@ -2,11 +2,11 @@
 <html>
 <head>
 <title>README</title>
-<!-- 2014-06-02 Mon 16:25 -->
+<!-- 2014-06-03 Tue 17:18 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="Carlo Zancanaro">
-<link rel="stylesheet" type="text/css" href="stylesheets/styles.css">
+<link rel="stylesheet" type="text/css" href="stylesheets/styles.css"><script src="javascripts/angular.js"></script><script src="javascripts/ng-computed.min.js"></script>
 <script type="text/javascript">
 /*
 @licstart  The following is the entire license notice for the
@@ -75,27 +75,38 @@ generate all the HTML files!
 
 (setq
  org-html-doctype <span style="color: #2aa198;">"html5"</span>
- org-publish-project-alist (<span style="color: #859900;">let</span> ((root (file-name-directory (buffer-file-name))))
-                             `((<span style="color: #2aa198;">"ng-computed-pages"</span>
-                                <span style="color: #859900;">:base-directory</span> ,root
-                                <span style="color: #859900;">:base-extension</span> <span style="color: #2aa198;">"org"</span>
-                                <span style="color: #859900;">:publishing-directory</span> ,root
-                                <span style="color: #859900;">:recursive</span> t
+ org-publish-project-alist (<span style="color: #859900;">let*</span> ((root (file-name-directory (buffer-file-name)))
+                                  (default-postamble (concat <span style="color: #2aa198;">"&lt;p class=\"author\"&gt;Author: %a (%e)&lt;/p&gt;\n"</span>
+                                                             <span style="color: #2aa198;">"&lt;p class=\"creator\"&gt;%c&lt;/p&gt;\n"</span>
+                                                             <span style="color: #2aa198;">"&lt;p class=\"github-link\"&gt;&lt;a href=\"https://github.com/ClearboxSystems/ng-computed\"&gt;On Github&lt;/a&gt;&lt;/p&gt;"</span>))
+                                  (base-project `(<span style="color: #859900;">:html-postamble</span> ,default-postamble
 
-                                <span style="color: #859900;">:publishing-function</span> org-html-publish-to-html
+                                                  <span style="color: #859900;">:html-head-include-default-style</span> nil
 
-                                <span style="color: #859900;">:html-head-include-default-style</span> nil
-                                <span style="color: #859900;">:html-head</span> <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\"&gt;"</span>
-                                <span style="color: #586e75; font-style: italic;">;;</span><span style="color: #586e75; font-style: italic;">:html-preamble "&lt;p class=\"github-link\"&gt;&lt;a href=\"https://github.com/ClearboxSystems/ng-computed\"&gt;On Github&lt;/a&gt;&lt;/p&gt;"</span>
-                                <span style="color: #859900;">:html-postamble</span> ,(concat <span style="color: #2aa198;">"&lt;p class=\"author\"&gt;Author: %a (%e)&lt;/p&gt;\n"</span>
-                                                         <span style="color: #2aa198;">"&lt;p class=\"creator\"&gt;%c&lt;/p&gt;\n"</span>
-                                                         <span style="color: #2aa198;">"&lt;p class=\"github-link\"&gt;&lt;a href=\"https://github.com/ClearboxSystems/ng-computed\"&gt;On Github&lt;/a&gt;&lt;/p&gt;"</span>)
+                                                  <span style="color: #859900;">:base-extension</span> <span style="color: #2aa198;">"org"</span>
+                                                  <span style="color: #859900;">:publishing-function</span> org-html-publish-to-html
 
-                                <span style="color: #859900;">:section-numbers</span> nil
-                                <span style="color: #859900;">:with-toc</span> nil
+                                                  <span style="color: #859900;">:section-numbers</span> nil
+                                                  <span style="color: #859900;">:with-toc</span> nil
 
-                                <span style="color: #859900;">:author</span> <span style="color: #2aa198;">"Carlo Zancanaro"</span>
-                                <span style="color: #859900;">:email</span> <span style="color: #2aa198;">"carlo@clearboxsystems.com.au"</span>))))
+                                                  <span style="color: #859900;">:author</span> <span style="color: #2aa198;">"Carlo Zancanaro"</span>
+                                                  <span style="color: #859900;">:email</span> <span style="color: #2aa198;">"carlo@clearboxsystems.com.au"</span>)))
+                             (list (append `(<span style="color: #2aa198;">"ng-computed:root"</span>
+                                             <span style="color: #859900;">:base-directory</span> ,root
+                                             <span style="color: #859900;">:publishing-directory</span> ,root
+                                             <span style="color: #859900;">:html-head</span> ,(concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\"&gt;"</span>
+                                                                 <span style="color: #2aa198;">"&lt;script src=\"javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
+                                                                 <span style="color: #2aa198;">"&lt;script src=\"javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;"</span>)
+                                             )
+                                           base-project)
+                                   (append `(<span style="color: #2aa198;">"ng-computed:pages"</span> 
+                                             <span style="color: #859900;">:base-directory</span> ,(concat root <span style="color: #2aa198;">"pages"</span>)
+                                             <span style="color: #859900;">:publishing-directory</span> ,(concat root <span style="color: #2aa198;">"pages"</span>)
+                                             <span style="color: #859900;">:html-head</span> ,(concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"../stylesheets/styles.css\"&gt;"</span>
+                                                                 <span style="color: #2aa198;">"&lt;script src=\"../javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
+                                                                 <span style="color: #2aa198;">"&lt;script src=\"../javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;"</span>))
+                                           base-project)
+                                   '(<span style="color: #2aa198;">"ng-computed"</span> <span style="color: #859900;">:components</span> (<span style="color: #2aa198;">"ng-computed:root"</span> <span style="color: #2aa198;">"ng-computed:pages"</span>)))))
 (add-to-list 'org-src-lang-modes
              '(<span style="color: #2aa198;">"html-example"</span> . html))
 (add-to-list 'org-babel-load-languages
@@ -117,7 +128,7 @@ generate all the HTML files!
 (<span style="color: #859900;">let</span> ((old org-confirm-babel-evaluate))
   (org-publish-remove-all-timestamps)
   (setq org-confirm-babel-evaluate nil)
-  (org-publish <span style="color: #2aa198;">"ng-computed-pages"</span>)
+  (org-publish <span style="color: #2aa198;">"ng-computed"</span>)
   (setq org-confirm-babel-evaluate old))
 
 <span style="color: #586e75; font-style: italic;">;; </span><span style="color: #586e75; font-style: italic;">put your cursor here, then type C-c C-c, then answer yes if you're asked</span>
