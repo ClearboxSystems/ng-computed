@@ -2,11 +2,20 @@
 <html>
 <head>
 <title>ng-computed</title>
-<!-- 2014-06-03 Tue 17:18 -->
+<!-- 2014-06-04 Wed 18:05 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="Carlo Zancanaro">
 <link rel="stylesheet" type="text/css" href="stylesheets/styles.css"><script src="javascripts/angular.js"></script><script src="javascripts/ng-computed.min.js"></script>
+                                                   <script>
+                                                     angular.element(document).ready(function() {
+                                                       var elements = document.querySelectorAll("[ng-app]");
+                                                       for (var i = 1, l = elements.length; i < l; ++i) {
+                                                         var e = elements[i];
+                                                         angular.bootstrap(e, [angular.element(e).attr('ng-app')]);
+                                                       }
+                                                     });
+                                                   </script>
 <script type="text/javascript">
 /*
 @licstart  The following is the entire license notice for the
@@ -55,6 +64,9 @@ for the JavaScript code in this tag.
 </script>
 </head>
 <body>
+<div id="preamble" class="status">
+<a href="index.html">Introduction</a><a href="pages/installation.html">Installation</a><a href="pages/debug.html">Debug</a>
+</div>
 <div id="content">
 <h1 class="title">ng-computed</h1>
 <p>
@@ -154,7 +166,7 @@ Here's that example in action:
   </table>
 </div>
 <script>
-angular.module('hello-world-example', ['ngComputed', 'ng'])
+(function(){angular.module('hello-world-example', ['ngComputed', 'ng'])
     .controller('HelloWorldController', function($scope, $computed, $trackedEval) {
         angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
         $scope.hello = "hello";
@@ -162,7 +174,7 @@ angular.module('hello-world-example', ['ngComputed', 'ng'])
         $scope.$computed("helloWorld", function() {
             return $scope.$eval("hello") + ", " + $scope.$eval("world") + "!";
         });
-    });
+    });})()
 </script>
 </div>
 </div>

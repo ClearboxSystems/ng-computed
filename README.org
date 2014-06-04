@@ -28,39 +28,57 @@ generate all the HTML files!
                                                     :with-toc nil
 
                                                     :author "Carlo Zancanaro"
-                                                    :email "carlo@clearboxsystems.com.au")))
+                                                    :email "carlo@clearboxsystems.com.au"))
+                                    (preamble (lambda (root-path)
+                                                (concat "<a href=\"" root-path "index.html\">Introduction</a>"
+                                                        "<a href=\"" root-path "pages/installation.html\">Installation</a>"
+                                                        "<a href=\"" root-path "pages/debug.html\">Debug</a>")))
+                                    (head (lambda (root-path)
+                                            (concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"" root-path "stylesheets/styles.css\">"
+                                                    "<script src=\"" root-path "javascripts/angular.js\"></script>"
+                                                    "<script src=\"" root-path "javascripts/ng-computed.min.js\"></script>
+                                                     <script>
+                                                       angular.element(document).ready(function() {
+                                                         var elements = document.querySelectorAll(\"[ng-app]\");
+                                                         for (var i = 1, l = elements.length; i < l; ++i) {
+                                                           var e = elements[i];
+                                                           angular.bootstrap(e, [angular.element(e).attr('ng-app')]);
+                                                         }
+                                                       });
+                                                     </script>"))))
                                (list (append `("ng-computed:root"
                                                :base-directory ,root
                                                :publishing-directory ,root
-                                               :html-head ,(concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\">"
-                                                                   "<script src=\"javascripts/angular.js\"></script>"
-                                                                   "<script src=\"javascripts/ng-computed.min.js\"></script>")
-                                               )
+                                               :html-preamble ,(funcall preamble "")
+                                               :html-head ,(funcall head ""))
                                              base-project)
                                      (append `("ng-computed:pages" 
                                                :base-directory ,(concat root "pages")
                                                :publishing-directory ,(concat root "pages")
-                                               :html-head ,(concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"../stylesheets/styles.css\">"
-                                                                   "<script src=\"../javascripts/angular.js\"></script>"
-                                                                   "<script src=\"../javascripts/ng-computed.min.js\"></script>"))
+                                               :html-preamble ,(funcall preamble "../")
+                                               :html-head ,(funcall head "../"))
                                              base-project)
                                      '("ng-computed" :components ("ng-computed:root" "ng-computed:pages")))))
   (add-to-list 'org-src-lang-modes
                '("html-example" . html))
   (add-to-list 'org-babel-load-languages
                '(html-example . t))
+  (defvar org-babel-default-header-args:html-example
+    '((:exports . "both")
+      (:results . "html")))
+  (defun org-babel-execute:html-example (body params)
+    body)
+  (provide 'ob-html-example)
 
   (add-to-list 'org-src-lang-modes
                '("js-example" . js))
   (add-to-list 'org-babel-load-languages
                '(js-example . t))
-
-  (defun org-babel-execute:html-example (body params)
-    body)
-  (provide 'ob-html-example)
-
+  (defvar org-babel-default-header-args:js-example
+    '((:exports . "both")
+      (:results . "html")))
   (defun org-babel-execute:js-example (body params)
-    (concat "<script>\n" body "\n</script>"))
+    (concat "<script>\n(function(){" body "})()\n</script>"))
   (provide 'ob-js-example)
 
   (let ((old org-confirm-babel-evaluate))

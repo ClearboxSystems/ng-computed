@@ -30,7 +30,7 @@ thing is the line marked [[(enabling-debug)]], where =ng-computed= is
 instructed to maintain an explicit dependency graph.
 
 #+NAME: object-example-js
-#+BEGIN_SRC js-example :exports both :results html
+#+BEGIN_SRC js-example
   angular.module('Simple', ['ng', 'ngComputed'])
       .config(function($computedProvider) {
           $computedProvider.useDebug(true); // (ref:enabling-debug)
@@ -50,7 +50,7 @@ instructed to maintain an explicit dependency graph.
 #+END_SRC
 
 #+NAME: object-example-html
-#+BEGIN_SRC html-example :exports both :results html
+#+BEGIN_SRC html-example
   <div ng-app="Simple"
        ng-controller="SimpleCtrl">
     <div>

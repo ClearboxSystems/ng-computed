@@ -1,0 +1,142 @@
+#+TITLE: Installation
+#+OPTIONS: toc:1
+
+* Basic instructions
+
+Adding =ng-computed= to an AngularJS project is very simple. There are
+three steps:
+
+  1. add =ng-computed.js= or =ng-computed.min.js= to your project, and
+     include it in your page
+
+     #+BEGIN_SRC html-example :exports source
+       <script src="path/to/ng-computed.min.js"></script>
+     #+END_SRC
+
+  2. add =ng-computed= to your module's dependencies
+
+     #+BEGIN_SRC js-example :exports source
+       var exampleModule = angular.module('app', ['ng', 'ngComputed']);
+     #+END_SRC
+
+  3. inject ~$computed~ and ~$trackedEval~ into your project
+
+     #+BEGIN_SRC js-example :exports source
+       exampleModule.run(function($rootScope, $computed, $trackedEval) {
+           angular.extend($rootScope.constructor.prototype, {
+               $computed: $computed,
+               $eval: $trackedEval
+           });
+       });
+     #+END_SRC
+
+Now ~$computed~ is ready for use!
+
+* Complete example
+
+#+RESULTS: installation-example-html
+#+RESULTS: installation-example-js
+
+#+NAME: installation-example-html
+#+BEGIN_SRC html-example
+  <div ng-app="install-example" ng-controller="ExampleCtrl">
+    <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+  </div>
+#+END_SRC
+
+#+NAME: installation-example-js
+#+BEGIN_SRC js-example
+  angular.module("install-example", ["ng", "ngComputed"])
+      .run(function($rootScope, $computed, $trackedEval) {
+          angular.extend($rootScope.constructor.prototype, {
+              $computed: $computed,
+              $eval: $trackedEval
+          });
+      })
+      .controller("ExampleCtrl", function($scope) {
+          $scope.x = 10;
+          $scope.y = 5;
+          $scope.$computed("sum", function() {
+              return +$scope.$eval("x") + +$scope.$eval("y");
+          });
+      });;
+#+END_SRC
+
+* Variations
+
+** Naming variation
+
+In step three above we installed ~$computed~ and ~$trackedEval~ to the
+~$rootScope.Scope~ object prototype. There's no reason why we must do
+this, and so we are free to use different names for each of these
+elements if we wish:
+
+#+NAME: name-example-js
+#+BEGIN_SRC js-example
+  angular.module("name-example", ["ng", "ngComputed"])
+      .run(function($rootScope, $computed, $trackedEval) {
+          angular.extend($rootScope.constructor.prototype, {
+              dynamic: $computed,
+              get: $trackedEval
+          });
+      })
+      .controller("ExampleCtrl", function($scope) {
+          $scope.x = 10;
+          $scope.y = 5;
+          $scope.dynamic("sum", function() { // (ref:dynamic)
+              return +$scope.get("x") + +$scope.get("y"); // (ref:get)
+          });
+      });
+#+END_SRC
+
+Using this configuration we would then have to write our computed
+properties differently, as you can see on the lines marked [[(dynamic)]]
+and [[(get)]].
+
+#+NAME: name-example-html
+#+BEGIN_SRC html-example
+  <div ng-app="name-example" ng-controller="ExampleCtrl">
+    <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+  </div>
+#+END_SRC
+
+#+RESULTS: name-example-html
+#+RESULTS: name-example-js
+
+** Injection variation
+
+Another variation on step three is to inject ~$computed~ and
+~$trackedEval~ directly into the scope which is going to use
+them. This approach is the best for minimising the impact that
+=ng-computed= could have on your program, but does make it more
+difficult to create computed properties.
+
+Note that we are, again, free to choose different names for each the
+useful functions. It is important that the functions be called in a
+context in which their ~this~ argument is bound to the relevant scope,
+however. The easiest way to accomplish this is to add them as methods
+on the scope.
+
+#+NAME: injection-example-js
+#+BEGIN_SRC js-example
+  angular.module("injection-example", ["ng", "ngComputed"])
+      .controller("ExampleCtrl", function($scope, $computed, $trackedEval) {
+          $scope.dynamic = $computed;
+          $scope.get = $trackedEval;
+          $scope.x = 10;
+          $scope.y = 5;
+          $scope.dynamic("sum", function() {
+              return +$scope.get("x") + +$scope.get("y");
+          });
+      });
+#+END_SRC
+
+#+NAME: injection-example-html
+#+BEGIN_SRC html-example
+  <div ng-app="name-example" ng-controller="ExampleCtrl">
+    <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+  </div>
+#+END_SRC
+
+#+RESULTS: injection-example-html
+#+RESULTS: injection-example-js

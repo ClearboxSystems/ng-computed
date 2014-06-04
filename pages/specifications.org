@@ -1,0 +1,4 @@
+#+TITLE: Specifications
+
+# a description of what a "specification" is, in the context of
+# ng-computed (ie. a function, or a list of functions)

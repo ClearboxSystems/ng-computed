@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Installation</title>
+<!-- 2014-06-04 Wed 18:17 -->
+<meta  charset="utf-8">
+<meta  name="generator" content="Org-mode">
+<meta  name="author" content="Carlo Zancanaro">
+<link rel="stylesheet" type="text/css" href="../stylesheets/styles.css"><script src="../javascripts/angular.js"></script><script src="../javascripts/ng-computed.min.js"></script>
+                                                   <script>
+                                                     angular.element(document).ready(function() {
+                                                       var elements = document.querySelectorAll("[ng-app]");
+                                                       for (var i = 1, l = elements.length; i < l; ++i) {
+                                                         var e = elements[i];
+                                                         angular.bootstrap(e, [angular.element(e).attr('ng-app')]);
+                                                       }
+                                                     });
+                                                   </script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a href="../index.html">Introduction</a><a href="../pages/installation.html">Installation</a><a href="../pages/debug.html">Debug</a>
+</div>
+<div id="content">
+<h1 class="title">Installation</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">Basic instructions</a></li>
+<li><a href="#sec-2">Complete example</a></li>
+<li><a href="#sec-3">Variations</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Basic instructions</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Adding <code>ng-computed</code> to an AngularJS project is very simple. There are
+three steps:
+</p>
+
+<ol class="org-ol">
+<li>add <code>ng-computed.js</code> or <code>ng-computed.min.js</code> to your project, and
+include it in your page
+
+<div class="org-src-container">
+
+<pre class="src src-html-example">&lt;<span style="color: #268bd2;">script</span> <span style="color: #268bd2;">src</span>=<span style="color: #2aa198;">"path/to/ng-computed.min.js"</span>&gt;&lt;/<span style="color: #268bd2;">script</span>&gt;
+</pre>
+</div>
+</li>
+
+<li>add <code>ng-computed</code> to your module's dependencies
+
+<div class="org-src-container">
+
+<pre class="src src-js-example"><span style="color: #859900;">var</span> <span style="color: #268bd2;">exampleModule</span> = angular.module(<span style="color: #2aa198;">'app'</span>, [<span style="color: #2aa198;">'ng'</span>, <span style="color: #2aa198;">'ngComputed'</span>]);
+</pre>
+</div>
+</li>
+
+<li>inject <code>$computed</code> and <code>$trackedEval</code> into your project
+
+<div class="org-src-container">
+
+<pre class="src src-js-example">exampleModule.run(<span style="color: #859900;">function</span>(<span style="color: #268bd2;">$rootScope</span>, <span style="color: #268bd2;">$computed</span>, <span style="color: #268bd2;">$trackedEval</span>) {
+    angular.extend($rootScope.constructor.<span style="color: #2aa198;">prototype</span>, {
+        $computed: $computed,
+        $eval: $trackedEval
+    });
+});
+</pre>
+</div>
+</li>
+</ol>
+
+<p>
+Now <code>$computed</code> is ready for use!
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Complete example</h2>
+<div class="outline-text-2" id="text-2">
+<div ng-app="install-example" ng-controller="ExampleCtrl">
+  <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+</div>
+<script>
+(function(){angular.module("install-example", ["ng", "ngComputed"])
+    .run(function($rootScope, $computed, $trackedEval) {
+        angular.extend($rootScope.constructor.prototype, {
+            $computed: $computed,
+            $eval: $trackedEval
+        });
+    })
+    .controller("ExampleCtrl", function($scope) {
+        $scope.x = 10;
+        $scope.y = 5;
+        $scope.$computed("sum", function() {
+            return +$scope.$eval("x") + +$scope.$eval("y");
+        });
+    });;})()
+</script>
+
+<div class="org-src-container">
+
+<pre class="src src-html-example" id="installation-example-html">&lt;<span style="color: #268bd2;">div</span> <span style="color: #268bd2;">ng-app</span>=<span style="color: #2aa198;">"install-example"</span> <span style="color: #268bd2;">ng-controller</span>=<span style="color: #2aa198;">"ExampleCtrl"</span>&gt;
+  &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"x"</span>&gt; + &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"y"</span>&gt; = {{sum}}
+&lt;/<span style="color: #268bd2;">div</span>&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="installation-example-js">angular.module(<span style="color: #2aa198;">"install-example"</span>, [<span style="color: #2aa198;">"ng"</span>, <span style="color: #2aa198;">"ngComputed"</span>])
+    .run(<span style="color: #859900;">function</span>(<span style="color: #268bd2;">$rootScope</span>, <span style="color: #268bd2;">$computed</span>, <span style="color: #268bd2;">$trackedEval</span>) {
+        angular.extend($rootScope.constructor.<span style="color: #2aa198;">prototype</span>, {
+            $computed: $computed,
+            $eval: $trackedEval
+        });
+    })
+    .controller(<span style="color: #2aa198;">"ExampleCtrl"</span>, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">$scope</span>) {
+        $scope.x = 10;
+        $scope.y = 5;
+        $scope.$computed(<span style="color: #2aa198;">"sum"</span>, <span style="color: #859900;">function</span>() {
+            <span style="color: #859900;">return</span> +$scope.$eval(<span style="color: #2aa198;">"x"</span>) + +$scope.$eval(<span style="color: #2aa198;">"y"</span>);
+        });
+    });;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Variations</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">Naming variation</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+In step three above we installed <code>$computed</code> and <code>$trackedEval</code> to the
+<code>$rootScope.Scope</code> object prototype. There's no reason why we must do
+this, and so we are free to use different names for each of these
+elements if we wish:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="name-example-js">angular.module(<span style="color: #2aa198;">"name-example"</span>, [<span style="color: #2aa198;">"ng"</span>, <span style="color: #2aa198;">"ngComputed"</span>])
+    .run(<span style="color: #859900;">function</span>(<span style="color: #268bd2;">$rootScope</span>, <span style="color: #268bd2;">$computed</span>, <span style="color: #268bd2;">$trackedEval</span>) {
+        angular.extend($rootScope.constructor.<span style="color: #2aa198;">prototype</span>, {
+            dynamic: $computed,
+            get: $trackedEval
+        });
+    })
+    .controller(<span style="color: #2aa198;">"ExampleCtrl"</span>, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">$scope</span>) {
+        $scope.x = 10;
+        $scope.y = 5;
+<span id="coderef-dynamic" class="coderef-off">        $scope.dynamic(<span style="color: #2aa198;">"sum"</span>, <span style="color: #859900;">function</span>() { <span style="color: #586e75; font-style: italic;">//</span> (dynamic)</span>
+<span id="coderef-get" class="coderef-off">            <span style="color: #859900;">return</span> +$scope.get(<span style="color: #2aa198;">"x"</span>) + +$scope.get(<span style="color: #2aa198;">"y"</span>); <span style="color: #586e75; font-style: italic;">//</span> (get)</span>
+        });
+    });
+</pre>
+</div>
+
+<p>
+Using this configuration we would then have to write our computed
+properties differently, as you can see on the lines marked <a href="#coderef-dynamic"class="coderef" onmouseover="CodeHighlightOn(this, 'coderef-dynamic');" onmouseout="CodeHighlightOff(this, 'coderef-dynamic');">dynamic</a>
+and <a href="#coderef-get"class="coderef" onmouseover="CodeHighlightOn(this, 'coderef-get');" onmouseout="CodeHighlightOff(this, 'coderef-get');">get</a>.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-html-example" id="name-example-html">&lt;<span style="color: #268bd2;">div</span> <span style="color: #268bd2;">ng-app</span>=<span style="color: #2aa198;">"name-example"</span> <span style="color: #268bd2;">ng-controller</span>=<span style="color: #2aa198;">"ExampleCtrl"</span>&gt;
+  &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"x"</span>&gt; + &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"y"</span>&gt; = {{sum}}
+&lt;/<span style="color: #268bd2;">div</span>&gt;
+</pre>
+</div>
+
+<div ng-app="name-example" ng-controller="ExampleCtrl">
+  <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+</div>
+<script>
+(function(){angular.module("name-example", ["ng", "ngComputed"])
+    .run(function($rootScope, $computed, $trackedEval) {
+        angular.extend($rootScope.constructor.prototype, {
+            dynamic: $computed,
+            get: $trackedEval
+        });
+    })
+    .controller("ExampleCtrl", function($scope) {
+        $scope.x = 10;
+        $scope.y = 5;
+        $scope.dynamic("sum", function() { // (ref:dynamic)
+            return +$scope.get("x") + +$scope.get("y"); // (ref:get)
+        });
+    });})()
+</script>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">Injection variation</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Another variation on step three is to inject <code>$computed</code> and
+<code>$trackedEval</code> directly into the scope which is going to use
+them. This approach is the best for minimising the impact that
+<code>ng-computed</code> could have on your program, but does make it more
+difficult to create computed properties.
+</p>
+
+<p>
+Note that we are, again, free to choose different names for each the
+useful functions. It is important that the functions be called in a
+context in which their <code>this</code> argument is bound to the relevant scope,
+however. The easiest way to accomplish this is to add them as methods
+on the scope.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="injection-example-js">angular.module(<span style="color: #2aa198;">"injection-example"</span>, [<span style="color: #2aa198;">"ng"</span>, <span style="color: #2aa198;">"ngComputed"</span>])
+    .controller(<span style="color: #2aa198;">"ExampleCtrl"</span>, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">$scope</span>, <span style="color: #268bd2;">$computed</span>, <span style="color: #268bd2;">$trackedEval</span>) {
+        $scope.dynamic = $computed;
+        $scope.get = $trackedEval;
+        $scope.x = 10;
+        $scope.y = 5;
+        $scope.dynamic(<span style="color: #2aa198;">"sum"</span>, <span style="color: #859900;">function</span>() {
+            <span style="color: #859900;">return</span> +$scope.get(<span style="color: #2aa198;">"x"</span>) + +$scope.get(<span style="color: #2aa198;">"y"</span>);
+        });
+    });
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-html-example" id="injection-example-html">&lt;<span style="color: #268bd2;">div</span> <span style="color: #268bd2;">ng-app</span>=<span style="color: #2aa198;">"name-example"</span> <span style="color: #268bd2;">ng-controller</span>=<span style="color: #2aa198;">"ExampleCtrl"</span>&gt;
+  &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"x"</span>&gt; + &lt;<span style="color: #268bd2;">input</span> <span style="color: #268bd2;">ng-model</span>=<span style="color: #2aa198;">"y"</span>&gt; = {{sum}}
+&lt;/<span style="color: #268bd2;">div</span>&gt;
+</pre>
+</div>
+
+<div ng-app="name-example" ng-controller="ExampleCtrl">
+  <input ng-model="x"> + <input ng-model="y"> = {{sum}}
+</div>
+<script>
+(function(){angular.module("injection-example", ["ng", "ngComputed"])
+    .controller("ExampleCtrl", function($scope, $computed, $trackedEval) {
+        $scope.dynamic = $computed;
+        $scope.get = $trackedEval;
+        $scope.x = 10;
+        $scope.y = 5;
+        $scope.dynamic("sum", function() {
+            return +$scope.get("x") + +$scope.get("y");
+        });
+    });})()
+</script>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Carlo Zancanaro (<a href="mailto:carlo@clearboxsystems.com.au">carlo@clearboxsystems.com.au</a>)</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.6)</p>
+<p class="github-link"><a href="https://github.com/ClearboxSystems/ng-computed">On Github</a></p>
+</div>
+</body>
+</html>

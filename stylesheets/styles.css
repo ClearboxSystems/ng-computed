@@ -89,10 +89,26 @@ textarea { overflow-x: auto; }
 }
 #postamble {
     margin-top: 10px;
+    text-align: right;
 }
 
 a, a:visited {
     color: #00f;
+}
+
+#preamble {
+    text-align: right;
+}
+
+#preamble a {
+    border: 1px solid #000;
+    border-bottom: 1px dashed #000;
+    padding: 3px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 5px;
+    margin-bottom: -1px;
+    background: white;
 }
 
 [ng-app] {

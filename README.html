@@ -2,11 +2,20 @@
 <html>
 <head>
 <title>README</title>
-<!-- 2014-06-03 Tue 17:18 -->
+<!-- 2014-06-04 Wed 18:05 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="Carlo Zancanaro">
 <link rel="stylesheet" type="text/css" href="stylesheets/styles.css"><script src="javascripts/angular.js"></script><script src="javascripts/ng-computed.min.js"></script>
+                                                   <script>
+                                                     angular.element(document).ready(function() {
+                                                       var elements = document.querySelectorAll("[ng-app]");
+                                                       for (var i = 1, l = elements.length; i < l; ++i) {
+                                                         var e = elements[i];
+                                                         angular.bootstrap(e, [angular.element(e).attr('ng-app')]);
+                                                       }
+                                                     });
+                                                   </script>
 <script type="text/javascript">
 /*
 @licstart  The following is the entire license notice for the
@@ -55,6 +64,9 @@ for the JavaScript code in this tag.
 </script>
 </head>
 <body>
+<div id="preamble" class="status">
+<a href="index.html">Introduction</a><a href="pages/installation.html">Installation</a><a href="pages/debug.html">Debug</a>
+</div>
 <div id="content">
 <h1 class="title">README</h1>
 <p>
@@ -90,39 +102,57 @@ generate all the HTML files!
                                                   <span style="color: #859900;">:with-toc</span> nil
 
                                                   <span style="color: #859900;">:author</span> <span style="color: #2aa198;">"Carlo Zancanaro"</span>
-                                                  <span style="color: #859900;">:email</span> <span style="color: #2aa198;">"carlo@clearboxsystems.com.au"</span>)))
+                                                  <span style="color: #859900;">:email</span> <span style="color: #2aa198;">"carlo@clearboxsystems.com.au"</span>))
+                                  (preamble (<span style="color: #859900;">lambda</span> (root-path)
+                                              (concat <span style="color: #2aa198;">"&lt;a href=\""</span> root-path <span style="color: #2aa198;">"index.html\"&gt;Introduction&lt;/a&gt;"</span>
+                                                      <span style="color: #2aa198;">"&lt;a href=\""</span> root-path <span style="color: #2aa198;">"pages/installation.html\"&gt;Installation&lt;/a&gt;"</span>
+                                                      <span style="color: #2aa198;">"&lt;a href=\""</span> root-path <span style="color: #2aa198;">"pages/debug.html\"&gt;Debug&lt;/a&gt;"</span>)))
+                                  (head (<span style="color: #859900;">lambda</span> (root-path)
+                                          (concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\""</span> root-path <span style="color: #2aa198;">"stylesheets/styles.css\"&gt;"</span>
+                                                  <span style="color: #2aa198;">"&lt;script src=\""</span> root-path <span style="color: #2aa198;">"javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
+                                                  <span style="color: #2aa198;">"&lt;script src=\""</span> root-path <span style="color: #2aa198;">"javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;</span>
+<span style="color: #2aa198;">                                                   &lt;script&gt;</span>
+<span style="color: #2aa198;">                                                     angular.element(document).ready(function() {</span>
+<span style="color: #2aa198;">                                                       var elements = document.querySelectorAll(\"[ng-app]\");</span>
+<span style="color: #2aa198;">                                                       for (var i = 1, l = elements.length; i &lt; l; ++i) {</span>
+<span style="color: #2aa198;">                                                         var e = elements[i];</span>
+<span style="color: #2aa198;">                                                         angular.bootstrap(e, [angular.element(e).attr('ng-app')]);</span>
+<span style="color: #2aa198;">                                                       }</span>
+<span style="color: #2aa198;">                                                     });</span>
+<span style="color: #2aa198;">                                                   &lt;/script&gt;"</span>))))
                              (list (append `(<span style="color: #2aa198;">"ng-computed:root"</span>
                                              <span style="color: #859900;">:base-directory</span> ,root
                                              <span style="color: #859900;">:publishing-directory</span> ,root
-                                             <span style="color: #859900;">:html-head</span> ,(concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/styles.css\"&gt;"</span>
-                                                                 <span style="color: #2aa198;">"&lt;script src=\"javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
-                                                                 <span style="color: #2aa198;">"&lt;script src=\"javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;"</span>)
-                                             )
+                                             <span style="color: #859900;">:html-preamble</span> ,(funcall preamble <span style="color: #2aa198;">""</span>)
+                                             <span style="color: #859900;">:html-head</span> ,(funcall head <span style="color: #2aa198;">""</span>))
                                            base-project)
                                    (append `(<span style="color: #2aa198;">"ng-computed:pages"</span> 
                                              <span style="color: #859900;">:base-directory</span> ,(concat root <span style="color: #2aa198;">"pages"</span>)
                                              <span style="color: #859900;">:publishing-directory</span> ,(concat root <span style="color: #2aa198;">"pages"</span>)
-                                             <span style="color: #859900;">:html-head</span> ,(concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\"../stylesheets/styles.css\"&gt;"</span>
-                                                                 <span style="color: #2aa198;">"&lt;script src=\"../javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
-                                                                 <span style="color: #2aa198;">"&lt;script src=\"../javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;"</span>))
+                                             <span style="color: #859900;">:html-preamble</span> ,(funcall preamble <span style="color: #2aa198;">"../"</span>)
+                                             <span style="color: #859900;">:html-head</span> ,(funcall head <span style="color: #2aa198;">"../"</span>))
                                            base-project)
                                    '(<span style="color: #2aa198;">"ng-computed"</span> <span style="color: #859900;">:components</span> (<span style="color: #2aa198;">"ng-computed:root"</span> <span style="color: #2aa198;">"ng-computed:pages"</span>)))))
 (add-to-list 'org-src-lang-modes
              '(<span style="color: #2aa198;">"html-example"</span> . html))
 (add-to-list 'org-babel-load-languages
              '(html-example . t))
+(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">org-babel-default-header-args:html-example</span>
+  '((<span style="color: #859900;">:exports</span> . <span style="color: #2aa198;">"both"</span>)
+    (<span style="color: #859900;">:results</span> . <span style="color: #2aa198;">"html"</span>)))
+(<span style="color: #859900;">defun</span> <span style="color: #268bd2;">org-babel-execute:html-example</span> (body params)
+  body)
+(<span style="color: #859900;">provide</span> '<span style="color: #2aa198;">ob-html-example</span>)
 
 (add-to-list 'org-src-lang-modes
              '(<span style="color: #2aa198;">"js-example"</span> . js))
 (add-to-list 'org-babel-load-languages
              '(js-example . t))
-
-(<span style="color: #859900;">defun</span> <span style="color: #268bd2;">org-babel-execute:html-example</span> (body params)
-  body)
-(<span style="color: #859900;">provide</span> '<span style="color: #2aa198;">ob-html-example</span>)
-
+(<span style="color: #859900;">defvar</span> <span style="color: #268bd2;">org-babel-default-header-args:js-example</span>
+  '((<span style="color: #859900;">:exports</span> . <span style="color: #2aa198;">"both"</span>)
+    (<span style="color: #859900;">:results</span> . <span style="color: #2aa198;">"html"</span>)))
 (<span style="color: #859900;">defun</span> <span style="color: #268bd2;">org-babel-execute:js-example</span> (body params)
-  (concat <span style="color: #2aa198;">"&lt;script&gt;\n"</span> body <span style="color: #2aa198;">"\n&lt;/script&gt;"</span>))
+  (concat <span style="color: #2aa198;">"&lt;script&gt;\n(function(){"</span> body <span style="color: #2aa198;">"})()\n&lt;/script&gt;"</span>))
 (<span style="color: #859900;">provide</span> '<span style="color: #2aa198;">ob-js-example</span>)
 
 (<span style="color: #859900;">let</span> ((old org-confirm-babel-evaluate))

@@ -24,7 +24,7 @@ can focus on your actual computation.
 * Hello World Example
 
 #+NAME: hello-world-html
-#+BEGIN_SRC html-example :exports both :results html
+#+BEGIN_SRC html-example
   <div ng-app="hello-world-example">
     <table ng-controller="HelloWorldController">
       <tr>
@@ -44,7 +44,7 @@ can focus on your actual computation.
 #+END_SRC
 
 #+NAME: hello-world-js
-#+BEGIN_SRC js-example :exports both :results html
+#+BEGIN_SRC js-example
   angular.module('hello-world-example', ['ngComputed', 'ng'])
       .controller('HelloWorldController', function($scope, $computed, $trackedEval) {
           angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
