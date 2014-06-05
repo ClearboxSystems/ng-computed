@@ -2,11 +2,11 @@
 <html>
 <head>
 <title>README</title>
-<!-- 2014-06-04 Wed 18:05 -->
+<!-- 2014-06-05 Thu 13:49 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="Carlo Zancanaro">
-<link rel="stylesheet" type="text/css" href="stylesheets/styles.css"><script src="javascripts/angular.js"></script><script src="javascripts/ng-computed.min.js"></script>
+<link rel="stylesheet" type="text/css" href="stylesheets/styles.css"><script src="javascripts/angular.js"></script><script src="javascripts/ng-computed.js"></script>
                                                    <script>
                                                      angular.element(document).ready(function() {
                                                        var elements = document.querySelectorAll("[ng-app]");
@@ -110,7 +110,7 @@ generate all the HTML files!
                                   (head (<span style="color: #859900;">lambda</span> (root-path)
                                           (concat <span style="color: #2aa198;">"&lt;link rel=\"stylesheet\" type=\"text/css\" href=\""</span> root-path <span style="color: #2aa198;">"stylesheets/styles.css\"&gt;"</span>
                                                   <span style="color: #2aa198;">"&lt;script src=\""</span> root-path <span style="color: #2aa198;">"javascripts/angular.js\"&gt;&lt;/script&gt;"</span>
-                                                  <span style="color: #2aa198;">"&lt;script src=\""</span> root-path <span style="color: #2aa198;">"javascripts/ng-computed.min.js\"&gt;&lt;/script&gt;</span>
+                                                  <span style="color: #2aa198;">"&lt;script src=\""</span> root-path <span style="color: #2aa198;">"javascripts/ng-computed.js\"&gt;&lt;/script&gt;</span>
 <span style="color: #2aa198;">                                                   &lt;script&gt;</span>
 <span style="color: #2aa198;">                                                     angular.element(document).ready(function() {</span>
 <span style="color: #2aa198;">                                                       var elements = document.querySelectorAll(\"[ng-app]\");</span>
@@ -158,7 +158,8 @@ generate all the HTML files!
 (<span style="color: #859900;">let</span> ((old org-confirm-babel-evaluate))
   (org-publish-remove-all-timestamps)
   (setq org-confirm-babel-evaluate nil)
-  (org-publish <span style="color: #2aa198;">"ng-computed"</span>)
+  (<span style="color: #859900;">save-excursion</span>
+    (org-publish <span style="color: #2aa198;">"ng-computed"</span>))
   (setq org-confirm-babel-evaluate old))
 
 <span style="color: #586e75; font-style: italic;">;; </span><span style="color: #586e75; font-style: italic;">put your cursor here, then type C-c C-c, then answer yes if you're asked</span>

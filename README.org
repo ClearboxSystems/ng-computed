@@ -36,7 +36,7 @@ generate all the HTML files!
                                     (head (lambda (root-path)
                                             (concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"" root-path "stylesheets/styles.css\">"
                                                     "<script src=\"" root-path "javascripts/angular.js\"></script>"
-                                                    "<script src=\"" root-path "javascripts/ng-computed.min.js\"></script>
+                                                    "<script src=\"" root-path "javascripts/ng-computed.js\"></script>
                                                      <script>
                                                        angular.element(document).ready(function() {
                                                          var elements = document.querySelectorAll(\"[ng-app]\");
@@ -84,7 +84,8 @@ generate all the HTML files!
   (let ((old org-confirm-babel-evaluate))
     (org-publish-remove-all-timestamps)
     (setq org-confirm-babel-evaluate nil)
-    (org-publish "ng-computed")
+    (save-excursion
+      (org-publish "ng-computed"))
     (setq org-confirm-babel-evaluate old))
 
   ;; put your cursor here, then type C-c C-c, then answer yes if you're asked

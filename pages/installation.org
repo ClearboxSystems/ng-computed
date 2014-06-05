@@ -1,5 +1,4 @@
 #+TITLE: Installation
-#+OPTIONS: toc:1
 
 * Basic instructions
 
