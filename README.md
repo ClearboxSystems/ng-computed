@@ -2,6 +2,9 @@
 
 Computed properties for [AngularJS][1], à la [Knockout JS][2].
 
+Features include automatic dependency management, promise unrapping
+and (optional) batched watches.
+
     bower install ng-computed
 
 [1]: http://angularjs.org/
