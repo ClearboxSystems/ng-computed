@@ -11,6 +11,7 @@
         "grunt-karma": "0.6.2",
         "karma": "~0.10",
         "karma-jasmine": "~0.1.0",
+        "karma-junit-reporter": "~0.1.0",
         "karma-phantomjs-launcher": "~0.1.0"
     },
     "engines": {

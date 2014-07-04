@@ -60,9 +60,19 @@ module.exports = function (grunt) {
             tasks: ['default', 'karma:unit:run']
         },
         karma: {
-            unit: {
+            options: {
                 configFile: "karma.conf.js",
+            },
+            unit: {
                 background: true
+            },
+            once: {
+                singleRun: true,
+                reporters: ['dots']
+            },
+            jenkins: {
+                singleRun: true,
+                reporters: ['junit']
             }
         }
     });

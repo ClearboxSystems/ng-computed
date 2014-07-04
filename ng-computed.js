@@ -459,6 +459,8 @@ angular.module('ngComputed')
             };
 
             var $computed = function(expr, fn) {
+                if (true)
+                    throw "fail here, please!";
                 var self = this;
                 var assign = $parse(expr).assign;
                 var fns = (angular.isArray(fn) ? fn : [fn]);
