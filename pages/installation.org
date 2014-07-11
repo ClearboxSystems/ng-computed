@@ -33,9 +33,6 @@ Now ~$computed~ is ready for use!
 
 * Complete example
 
-#+RESULTS: installation-example-html
-#+RESULTS: installation-example-js
-
 #+NAME: installation-example-html
 #+BEGIN_SRC html-example
   <div ng-app="install-example" ng-controller="ExampleCtrl">
@@ -58,11 +55,13 @@ Now ~$computed~ is ready for use!
           $scope.$computed("sum", function() {
               return +$scope.$eval("x") + +$scope.$eval("y");
           });
-      });;
+      });
 #+END_SRC
 
-* Variations
+#+RESULTS: installation-example-html
+#+RESULTS: installation-example-js
 
+* Variations
 ** Naming variation
 
 In step three above we installed ~$computed~ and ~$trackedEval~ to the
@@ -110,11 +109,11 @@ them. This approach is the best for minimising the impact that
 =ng-computed= could have on your program, but does make it more
 difficult to create computed properties.
 
-Note that we are, again, free to choose different names for each the
-useful functions. It is important that the functions be called in a
-context in which their ~this~ argument is bound to the relevant scope,
-however. The easiest way to accomplish this is to add them as methods
-on the scope.
+Note that we are, again, free to choose different names for each of
+the useful functions. It is important that the functions be called in
+a context in which their ~this~ argument is bound to the relevant
+scope, however. The easiest way to accomplish this is to add them as
+methods on the scope.
 
 #+NAME: injection-example-js
 #+BEGIN_SRC js-example

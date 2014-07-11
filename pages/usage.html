@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Usage</title>
-<!-- 2014-06-05 Thu 13:49 -->
+<!-- 2014-07-11 Fri 12:49 -->
 <meta  charset="utf-8">
 <meta  name="generator" content="Org-mode">
 <meta  name="author" content="Carlo Zancanaro">
@@ -65,10 +65,418 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="preamble" class="status">
-<a href="../index.html">Introduction</a><a href="../pages/installation.html">Installation</a><a href="../pages/debug.html">Debug</a>
+<a href="../index.html">Introduction</a><a href="../pages/installation.html">Installation</a><a href="../pages/usage.html">Usage</a><a href="../pages/extraction.html">Extraction</a><a href="../pages/specifications.html">Specifications</a><a href="../pages/watches.html">Watches</a><a href="../pages/debug.html">Debug</a>
 </div>
 <div id="content">
 <h1 class="title">Usage</h1>
+<p>
+Before reading this page, make sure you have <a href="installation.html#*Basic%20instructions">installed</a> <code>ng-computed</code>.
+</p>
+
+<script>
+(function(){angular.module('examples', ['ng', 'ngComputed'])
+    .controller('BasicExampleController', function($scope, $computed, $trackedEval) {
+        angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+            $scope.firstName = "George";
+            $scope.surname = "Clooney";
+            $scope.$computed('fullName', function() {
+                return $scope.$eval('firstName') // (ref:firstName)
+                    + ' '
+                    + $scope.$eval('surname'); // (ref:surname)
+            });
+    })
+    .controller('TransitiveExampleController', function($scope, $computed, $trackedEval) {
+        angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+            var combineNames = function() {
+                return $scope.$eval('firstName')
+                    + ' '
+                    + $scope.$eval('surname');
+            };
+            
+            $scope.firstName = "George";
+            $scope.surname = "Clooney";
+            $scope.$computed('fullName', function() {
+                return combineNames();
+            });
+    })
+    .controller('ExtractionExampleController', function($scope, $computed, $trackedEval, $http) {
+        angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+            $scope.url = "http://google.com";
+            $scope.$computed('requestResult', function() {
+                return $http.get($scope.$eval('url'));
+            });
+    })
+    .controller('TransformationsSteppedExampleController', function($scope, $computed, $trackedEval) {
+        angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+            $scope.a = 3;
+            $scope.b = 5;
+            $scope.c = 23;
+            $scope.counts = [0, 0, 0, 0]
+            $scope.$computed('sumIsEven', [function() {
+                $scope.counts[0]++;
+                return $scope.$eval('a') % 2;
+            }, function(prev) {
+                $scope.counts[1]++;
+                return (prev + $scope.$eval('b')) % 2;
+            }, function(prev) {
+                $scope.counts[2]++;
+                return (prev + $scope.$eval('c')) % 2;
+            }, function(val) {
+                $scope.counts[3]++;
+                return val == 0;
+            }]);
+    })
+    .controller('TransformationsExtractionExampleController', function($scope, $computed, $trackedEval, $http) {
+        angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+            $scope.url = "http://google.com";
+            $scope.$computed('uppercasePageContents', [function() {
+                return $http.get($scope.$eval('url'));
+            }, function(response) {
+                return (response.data || "").toUpperCase(); // always shouting
+            }]);
+    });})()
+</script>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Basic usage</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Creating a computed property is very simple. A call to
+<code>$scope.$computed</code> is all it takes:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js">$scope.$computed(<span style="color: #2aa198;">'theNumberTen'</span>, <span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> 10;
+});
+</pre>
+</div>
+
+<p>
+This particular call to <code>$computed</code> creates a new property on the
+scope called <code>theNumberTen</code> and sets it to <code>10</code>. Not the most
+interesting property ever.
+</p>
+
+<p>
+We can use <code>$computed</code> to create values which will depend on other
+values, though! To mark something on the scope as a dependency we just
+need to use <code>$trackedEval</code> (aliased here as <code>$eval</code>).
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="basic-example-js">$scope.firstName = <span style="color: #2aa198;">"George"</span>;
+$scope.surname = <span style="color: #2aa198;">"Clooney"</span>;
+$scope.$computed(<span style="color: #2aa198;">'fullName'</span>, <span style="color: #859900;">function</span>() {
+<span id="coderef-firstName" class="coderef-off">    <span style="color: #859900;">return</span> $scope.$eval(<span style="color: #2aa198;">'firstName'</span>) <span style="color: #586e75; font-style: italic;">//</span> (firstName)</span>
+        + <span style="color: #2aa198;">' '</span>
+<span id="coderef-surname" class="coderef-off">        + $scope.$eval(<span style="color: #2aa198;">'surname'</span>); <span style="color: #586e75; font-style: italic;">//</span> (surname)</span>
+});
+</pre>
+</div>
+
+<div ng-app="examples" ng-controller="BasicExampleController">
+  <div>
+    <label>First name: <input ng-model="firstName"></label>
+  </div>
+  <div>
+    <label>Surname: <input ng-model="surname"></label>
+  </div>
+  <div>
+    Full name: {{fullName}}
+  </div>
+</div>
+
+<p>
+This also works transitively, so if you call a function which uses
+<code>$trackedEval</code> internally then it will still be registered as a
+dependency. In the case below we would find that <code>firstName</code> and
+<code>surname</code> each have a <code>$watch</code> against them which will rerun the
+function for <code>fullName</code> (which will rerun <code>combineNames</code>, too).
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="transitive-example-js"><span style="color: #859900;">var</span> <span style="color: #268bd2;">combineNames</span> = <span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> $scope.$eval(<span style="color: #2aa198;">'firstName'</span>)
+        + <span style="color: #2aa198;">' '</span>
+        + $scope.$eval(<span style="color: #2aa198;">'surname'</span>);
+};
+
+$scope.firstName = <span style="color: #2aa198;">"George"</span>;
+$scope.surname = <span style="color: #2aa198;">"Clooney"</span>;
+$scope.$computed(<span style="color: #2aa198;">'fullName'</span>, <span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> combineNames();
+});
+</pre>
+</div>
+
+<div ng-app="examples" ng-controller="TransitiveExampleController">
+  <div>
+    <label>First name: <input ng-model="firstName"></label>
+  </div>
+  <div>
+    <label>Surname: <input ng-model="surname"></label>
+  </div>
+  <div>
+    Full name: {{fullName}}
+  </div>
+</div>
+
+<p>
+In practice the tracking of dependencies ensures that any time
+<code>$trackedEval</code> is called within the <i>dynamic context</i> of a <code>$computed</code>
+value's calculation it will be registered as a dependency for that
+property.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Purity</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+It's important to make sure that the specification that you provide to
+<code>$computed</code> is <b>almost <a href="https://en.wikipedia.org/wiki/Pure_function">pure</a></b>. What we mean by almost pure is that the
+function must give the same result given the same arguments, but only
+if you also consider the result of each <code>$trackedEval</code> invocation as
+an additional (implicit) argument. Almost pure functions should also
+have no side effects.
+</p>
+
+<p>
+In our examples above, the function calculating <code>$scope.fullName</code> has
+no formal arguments (as is common for computed properties), but it has
+two implicit arguments: <code>$scope.firstName</code> and
+<code>$scope.surname</code>. Therefore when <code>$scope.firstName</code> changes we can
+imagine our function being re-invoked with different arguments.
+</p>
+
+<p>
+Specifications should be <b>almost pure</b> because they may be invoked at
+unexpected times, or in unexpected ways. <code>ng-computed</code> makes no
+guarantees about how many times a specification is invoked (although
+an attempt is made to minimise the number of invocations).
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Extraction</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+When dealing with some types of data it's not possible to return a
+simple value type from a specification. In cases like asynchronous
+code it is often necessary to return some sort of a promise object
+which will be eventually resolved elsewhere. As a help for dealing
+with these cases, values returned by specifications undergo
+<i>extraction</i> before being used.
+</p>
+
+<p>
+By default, extraction consists of either returning the value as-is,
+or returning the value delivered by a <code>$q</code> promise. This extraction
+process can be customised, as is discussed in <i>Extractors</i>.
+</p>
+
+<p>
+An example of the default behaviour of <code>$computed</code>:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="extraction-example-js">$scope.url = <span style="color: #2aa198;">"http://google.com"</span>;
+$scope.$computed(<span style="color: #2aa198;">'requestResult'</span>, <span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> $http.get($scope.$eval(<span style="color: #2aa198;">'url'</span>));
+});
+</pre>
+</div>
+
+<p>
+Here the value of <code>$scope.requestResult</code> will be set to the result of
+fetching the URL specified in <code>$scope.url</code>. As <code>$scope.url</code> changes,
+new requests will be made and <code>$scope.requestResult</code> will be updated
+accordingly.
+</p>
+
+<div ng-app="examples" ng-controller="ExtractionExampleController">
+  <div>
+    Requests to other domains may give unexpected results - try this page's url
+  </div>
+  <div>
+    <label>URL: <input ng-model="url"></label>
+  </div>
+  <div>
+    {{ requestResult | json }}
+  </div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Transformations</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+There are some occasions when calculating a value is a little bit more
+involved than simply concatenating two strings looked up off the
+scope. Sometimes a value must be computed by an application of various
+functions in sequence. In cases like this we can use
+<i>transformations</i>.
+</p>
+
+<p>
+If <code>$computed</code> is given an array of functions as a specification, it
+will run through each of them in sequence, calling each function with
+the result of the previous one in the chain, and finally setting the
+scope property to the result of the final function.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js">$scope.value = 10;
+$scope.$computed(<span style="color: #2aa198;">'valuePlusThree'</span>, [<span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> $scope.$eval(<span style="color: #2aa198;">'value'</span>);
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">x</span>) {
+    <span style="color: #859900;">return</span> x+2;
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">x</span>) {
+    <span style="color: #859900;">return</span> x+1;
+}]);
+</pre>
+</div>
+
+<p>
+Here <code>$scope.valuePlusThree</code> is set to <code>13</code>, and will continue to
+update as <code>value</code> is updated. This example doesn't do anything that
+we couldn't have done in one function, however. There's no reason why
+we couldn't have used <code>$scope.$eval('value') + 3</code>, so transformations
+provide us with no benefit here.
+</p>
+
+<p>
+Transformations do provide us with two advantages over simply calling
+and composing functions, though:
+</p>
+
+<ol class="org-ol">
+<li>Each function in a transformation has dependencies tracked
+separately
+
+<p>
+This means that when a value changes, only the functions from that
+point down are re-evaluated (and even then, only if the preceding
+values have changed).
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="transformations-stepped-example-js">$scope.a = 3;
+$scope.b = 5;
+$scope.c = 23;
+$scope.counts = [0, 0, 0, 0]
+$scope.$computed(<span style="color: #2aa198;">'sumIsEven'</span>, [<span style="color: #859900;">function</span>() {
+    $scope.counts[0]++;
+    <span style="color: #859900;">return</span> $scope.$eval(<span style="color: #2aa198;">'a'</span>) % 2;
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">prev</span>) {
+    $scope.counts[1]++;
+    <span style="color: #859900;">return</span> (prev + $scope.$eval(<span style="color: #2aa198;">'b'</span>)) % 2;
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">prev</span>) {
+    $scope.counts[2]++;
+    <span style="color: #859900;">return</span> (prev + $scope.$eval(<span style="color: #2aa198;">'c'</span>)) % 2;
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">val</span>) {
+    $scope.counts[3]++;
+    <span style="color: #859900;">return</span> val == 0;
+}]);
+</pre>
+</div>
+
+<div ng-app="examples" ng-controller="TransformationsSteppedExampleController">
+  <div>
+    <label>a: <input ng-model="a" type="number"></label>
+    +
+    <label>b: <input ng-model="b" type="number"></label>
+    +
+    <label>c: <input ng-model="c" type="number"></label>
+    is {{ sumIsEven ? 'even' : 'odd' }}
+  </div>
+  <div>
+    Recalculations: {{ counts | json }}
+  </div>
+</div>
+
+<p>
+In this case, <code>$scope.sumIsEven</code> will be set to true if the
+properties <code>a</code>, <code>b</code> and <code>c</code> on <code>$scope</code> sum together to be an even
+number, and false otherwise. When any of <code>a</code>, <code>b</code> or <code>c</code> change
+then their step of the function is re-run. If the value has changed
+then the next step of the chain is invoked, and so on.
+</p>
+
+<p>
+Try setting <code>$scope.a</code> to <code>5</code> by selecting the <code>3</code> and replacing
+it. Observe that only the first step got re-run (the first element
+in the array was incremented). <code>$scope.a</code> remained odd, and thus no
+further calculation was necessary.
+</p>
+
+<p>
+Now try incrementing <code>$scope.c</code> to <code>24</code>. See that only the last two
+steps got re-run (the last two elements in the array were
+incremented). Neither <code>$scope.a</code> nor <code>$scope.b</code> changed, so they
+did not need to be recalculated.
+</p>
+
+<p>
+This automatic tracking and re-invocation of dependencies for
+separate steps in a computation can give significant performance
+benefits in some circumstances.
+</p>
+</li>
+
+<li>Each result in a transformation is extracted before being passed
+to the following function
+
+<p>
+This means you can chain together asynchronous computations in a
+natural way:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-js-example" id="transformations-extraction-example-js">$scope.url = <span style="color: #2aa198;">"http://google.com"</span>;
+$scope.$computed(<span style="color: #2aa198;">'uppercasePageContents'</span>, [<span style="color: #859900;">function</span>() {
+    <span style="color: #859900;">return</span> $http.get($scope.$eval(<span style="color: #2aa198;">'url'</span>));
+}, <span style="color: #859900;">function</span>(<span style="color: #268bd2;">response</span>) {
+    <span style="color: #859900;">return</span> (response.data || <span style="color: #2aa198;">""</span>).toUpperCase(); <span style="color: #586e75; font-style: italic;">// </span><span style="color: #586e75; font-style: italic;">always shouting</span>
+}]);
+</pre>
+</div>
+
+<div ng-app="examples" ng-controller="TransformationsExtractionExampleController">
+  <div>
+    Requests to other domains may give unexpected results - try this page's url
+  </div>
+  <div>
+    <label>URL: <input ng-model="url"></label>
+  </div>
+  <div>
+    {{ uppercasePageContents }}
+  </div>
+</div>
+</li>
+</ol>
+
+<p>
+Combining these two properties can allow for complex calculations and
+logic to be captured within a series of transformations while
+<code>ng-computed</code> does all the work of making sure each step is re-run
+appropriately.
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Carlo Zancanaro (<a href="mailto:carlo@clearboxsystems.com.au">carlo@clearboxsystems.com.au</a>)</p>

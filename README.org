@@ -32,6 +32,10 @@ generate all the HTML files!
                                     (preamble (lambda (root-path)
                                                 (concat "<a href=\"" root-path "index.html\">Introduction</a>"
                                                         "<a href=\"" root-path "pages/installation.html\">Installation</a>"
+                                                        "<a href=\"" root-path "pages/usage.html\">Usage</a>"
+                                                        "<a href=\"" root-path "pages/extraction.html\">Extraction</a>"
+                                                        "<a href=\"" root-path "pages/specifications.html\">Specifications</a>"
+                                                        "<a href=\"" root-path "pages/watches.html\">Watches</a>"
                                                         "<a href=\"" root-path "pages/debug.html\">Debug</a>")))
                                     (head (lambda (root-path)
                                             (concat "<link rel=\"stylesheet\" type=\"text/css\" href=\"" root-path "stylesheets/styles.css\">"

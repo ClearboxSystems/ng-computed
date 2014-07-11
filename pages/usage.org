@@ -1,1 +1,308 @@
 #+TITLE: Usage
+
+Before reading this page, make sure you have [[file:installation.org::*Basic%20instructions][installed]] =ng-computed=.
+
+# this source is used in a bit, so just ignore it for now
+#+BEGIN_SRC js-example :noweb yes :exports results
+  angular.module('examples', ['ng', 'ngComputed'])
+      .controller('BasicExampleController', function($scope, $computed, $trackedEval) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+              <<basic-example-js>>
+      })
+      .controller('TransitiveExampleController', function($scope, $computed, $trackedEval) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+              <<transitive-example-js>>
+      })
+      .controller('ExtractionExampleController', function($scope, $computed, $trackedEval, $http) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+              <<extraction-example-js>>
+      })
+      .controller('TransformationsSteppedExampleController', function($scope, $computed, $trackedEval) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+              <<transformations-stepped-example-js>>
+      })
+      .controller('TransformationsExtractionExampleController', function($scope, $computed, $trackedEval, $http) {
+          angular.extend($scope, {$computed: $computed, $eval: $trackedEval});
+              <<transformations-extraction-example-js>>
+      });
+#+END_SRC
+
+
+* Basic usage
+
+Creating a computed property is very simple. A call to
+~$scope.$computed~ is all it takes:
+
+#+BEGIN_SRC js
+  $scope.$computed('theNumberTen', function() {
+      return 10;
+  });
+#+END_SRC
+
+This particular call to ~$computed~ creates a new property on the
+scope called ~theNumberTen~ and sets it to ~10~. Not the most
+interesting property ever.
+
+We can use ~$computed~ to create values which will depend on other
+values, though! To mark something on the scope as a dependency we just
+need to use ~$trackedEval~ (aliased here as ~$eval~).
+
+#+NAME: basic-example-js
+#+BEGIN_SRC js-example :exports source
+  $scope.firstName = "George";
+  $scope.surname = "Clooney";
+  $scope.$computed('fullName', function() {
+      return $scope.$eval('firstName') // (ref:firstName)
+          + ' '
+          + $scope.$eval('surname'); // (ref:surname)
+  });
+#+END_SRC
+
+#+BEGIN_SRC html-example :exports results
+  <div ng-app="examples" ng-controller="BasicExampleController">
+    <div>
+      <label>First name: <input ng-model="firstName"></label>
+    </div>
+    <div>
+      <label>Surname: <input ng-model="surname"></label>
+    </div>
+    <div>
+      Full name: {{fullName}}
+    </div>
+  </div>
+#+END_SRC
+
+This also works transitively, so if you call a function which uses
+~$trackedEval~ internally then it will still be registered as a
+dependency. In the case below we would find that ~firstName~ and
+~surname~ each have a ~$watch~ against them which will rerun the
+function for ~fullName~ (which will rerun ~combineNames~, too).
+
+#+NAME: transitive-example-js
+#+BEGIN_SRC js-example :exports source
+  var combineNames = function() {
+      return $scope.$eval('firstName')
+          + ' '
+          + $scope.$eval('surname');
+  };
+
+  $scope.firstName = "George";
+  $scope.surname = "Clooney";
+  $scope.$computed('fullName', function() {
+      return combineNames();
+  });
+#+END_SRC
+
+#+BEGIN_SRC html-example :exports results
+  <div ng-app="examples" ng-controller="TransitiveExampleController">
+    <div>
+      <label>First name: <input ng-model="firstName"></label>
+    </div>
+    <div>
+      <label>Surname: <input ng-model="surname"></label>
+    </div>
+    <div>
+      Full name: {{fullName}}
+    </div>
+  </div>
+#+END_SRC
+
+In practice the tracking of dependencies ensures that any time
+~$trackedEval~ is called within the /dynamic context/ of a ~$computed~
+value's calculation it will be registered as a dependency for that
+property.
+
+* Purity
+
+It's important to make sure that the specification that you provide to
+~$computed~ is *almost [[https://en.wikipedia.org/wiki/Pure_function][pure]]*. What we mean by almost pure is that the
+function must give the same result given the same arguments, but only
+if you also consider the result of each ~$trackedEval~ invocation as
+an additional (implicit) argument. Almost pure functions should also
+have no side effects.
+
+In our examples above, the function calculating ~$scope.fullName~ has
+no formal arguments (as is common for computed properties), but it has
+two implicit arguments: ~$scope.firstName~ and
+~$scope.surname~. Therefore when ~$scope.firstName~ changes we can
+imagine our function being re-invoked with different arguments.
+
+Specifications should be *almost pure* because they may be invoked at
+unexpected times, or in unexpected ways. =ng-computed= makes no
+guarantees about how many times a specification is invoked (although
+an attempt is made to minimise the number of invocations).
+
+* Extraction
+
+When dealing with some types of data it's not possible to return a
+simple value type from a specification. In cases like asynchronous
+code it is often necessary to return some sort of a promise object
+which will be eventually resolved elsewhere. As a help for dealing
+with these cases, values returned by specifications undergo
+/extraction/ before being used.
+
+By default, extraction consists of either returning the value as-is,
+or returning the value delivered by a ~$q~ promise. This extraction
+process can be customised, as is discussed in [[#extractors][Extractors]].
+
+An example of the default behaviour of ~$computed~:
+
+#+NAME: extraction-example-js
+#+BEGIN_SRC js-example :exports source
+  $scope.url = "http://google.com";
+  $scope.$computed('requestResult', function() {
+      return $http.get($scope.$eval('url'));
+  });
+#+END_SRC
+
+Here the value of ~$scope.requestResult~ will be set to the result of
+fetching the URL specified in ~$scope.url~. As ~$scope.url~ changes,
+new requests will be made and ~$scope.requestResult~ will be updated
+accordingly.
+
+#+BEGIN_SRC html-example :exports results
+  <div ng-app="examples" ng-controller="ExtractionExampleController">
+    <div>
+      Requests to other domains may give unexpected results - try this page's url
+    </div>
+    <div>
+      <label>URL: <input ng-model="url"></label>
+    </div>
+    <div>
+      {{ requestResult | json }}
+    </div>
+  </div>
+#+END_SRC
+
+
+* Transformations
+
+There are some occasions when calculating a value is a little bit more
+involved than simply concatenating two strings looked up off the
+scope. Sometimes a value must be computed by an application of various
+functions in sequence. In cases like this we can use
+/transformations/.
+
+If ~$computed~ is given an array of functions as a specification, it
+will run through each of them in sequence, calling each function with
+the result of the previous one in the chain, and finally setting the
+scope property to the result of the final function.
+
+#+BEGIN_SRC js
+  $scope.value = 10;
+  $scope.$computed('valuePlusThree', [function() {
+      return $scope.$eval('value');
+  }, function(x) {
+      return x+2;
+  }, function(x) {
+      return x+1;
+  }]);
+#+END_SRC
+
+Here ~$scope.valuePlusThree~ is set to ~13~, and will continue to
+update as ~value~ is updated. This example doesn't do anything that
+we couldn't have done in one function, however. There's no reason why
+we couldn't have used ~$scope.$eval('value') + 3~, so transformations
+provide us with no benefit here.
+
+Transformations do provide us with two advantages over simply calling
+and composing functions, though:
+
+1. Each function in a transformation has dependencies tracked
+   separately
+
+   This means that when a value changes, only the functions from that
+   point down are re-evaluated (and even then, only if the preceding
+   values have changed).
+
+   #+NAME: transformations-stepped-example-js
+   #+BEGIN_SRC js-example :exports source
+     $scope.a = 3;
+     $scope.b = 5;
+     $scope.c = 23;
+     $scope.counts = [0, 0, 0, 0]
+     $scope.$computed('sumIsEven', [function() {
+         $scope.counts[0]++;
+         return $scope.$eval('a') % 2;
+     }, function(prev) {
+         $scope.counts[1]++;
+         return (prev + $scope.$eval('b')) % 2;
+     }, function(prev) {
+         $scope.counts[2]++;
+         return (prev + $scope.$eval('c')) % 2;
+     }, function(val) {
+         $scope.counts[3]++;
+         return val == 0;
+     }]);
+   #+END_SRC
+
+   #+BEGIN_SRC html-example :exports results
+     <div ng-app="examples" ng-controller="TransformationsSteppedExampleController">
+       <div>
+         <label>a: <input ng-model="a" type="number"></label>
+         +
+         <label>b: <input ng-model="b" type="number"></label>
+         +
+         <label>c: <input ng-model="c" type="number"></label>
+         is {{ sumIsEven ? 'even' : 'odd' }}
+       </div>
+       <div>
+         Recalculations: {{ counts | json }}
+       </div>
+     </div>
+   #+END_SRC 
+
+   In this case, ~$scope.sumIsEven~ will be set to true if the
+   properties ~a~, ~b~ and ~c~ on ~$scope~ sum together to be an even
+   number, and false otherwise. When any of ~a~, ~b~ or ~c~ change
+   then their step of the function is re-run. If the value has changed
+   then the next step of the chain is invoked, and so on.
+
+   Try setting ~$scope.a~ to ~5~ by selecting the ~3~ and replacing
+   it. Observe that only the first step got re-run (the first element
+   in the array was incremented). ~$scope.a~ remained odd, and thus no
+   further calculation was necessary.
+
+   Now try incrementing ~$scope.c~ to ~24~. See that only the last two
+   steps got re-run (the last two elements in the array were
+   incremented). Neither ~$scope.a~ nor ~$scope.b~ changed, so they
+   did not need to be recalculated.
+
+   This automatic tracking and re-invocation of dependencies for
+   separate steps in a computation can give significant performance
+   benefits in some circumstances.
+
+2. Each result in a transformation is extracted before being passed
+   to the following function
+
+   This means you can chain together asynchronous computations in a
+   natural way:
+
+   #+NAME: transformations-extraction-example-js
+   #+BEGIN_SRC js-example :exports source
+     $scope.url = "http://google.com";
+     $scope.$computed('uppercasePageContents', [function() {
+         return $http.get($scope.$eval('url'));
+     }, function(response) {
+         return (response.data || "").toUpperCase(); // always shouting
+     }]);
+   #+END_SRC
+
+   #+BEGIN_SRC html-example :exports results
+     <div ng-app="examples" ng-controller="TransformationsExtractionExampleController">
+       <div>
+         Requests to other domains may give unexpected results - try this page's url
+       </div>
+       <div>
+         <label>URL: <input ng-model="url"></label>
+       </div>
+       <div>
+         {{ uppercasePageContents }}
+       </div>
+     </div>
+   #+END_SRC
+
+Combining these two properties can allow for complex calculations and
+logic to be captured within a series of transformations while
+=ng-computed= does all the work of making sure each step is re-run
+appropriately.

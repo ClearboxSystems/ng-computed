@@ -16,9 +16,10 @@ store the graph in an explicit form.
 
 Above the horizontal line is the form that we're actually interested
 in. The input values are in some way combined to form a computed
-value. In this case the computation is very simple: if the checkbox is
-checked: use the value in the text input; otherwise: use the string
-"default value".
+value. In this case the computation is very simple:
+
+- if the checkbox is checked: use the value in the text input;
+- otherwise: use the string "default value".
 
 Beneath the horizontal line you can see a textual representation of
 the dependency graph that was generated. As you change the checkbox's
